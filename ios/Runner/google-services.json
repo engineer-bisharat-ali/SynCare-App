@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "8283318311",
+    "project_id": "syncare-c5822",
+    "storage_bucket": "syncare-c5822.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:8283318311:android:665460654d719e21a6c602",
+        "android_client_info": {
+          "package_name": "com.example.syncare"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACA-G7Ir8ni6-tflUE2LTfLUZFK-s83ok"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
