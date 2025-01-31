@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:syncare/constants/colors.dart';
+import 'package:syncare/pages/auths/forgot_password_page.dart';
 import 'package:syncare/pages/auths/signup_screen.dart';
 import 'package:syncare/pages/screens/home_screen.dart';
 import 'package:syncare/services/auth_services/auth_services.dart';
@@ -193,16 +194,19 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: loginUser,
                           text: "Login",
                         ),
-                        const SizedBox(height: 15),
-                        TextButton(
-                          onPressed: () {
-                            // Handle Forgot Password (to be implemented)
-                          },
-                          child: const Text(
-                            "Forgot Password?",
-                            style: TextStyle(
-                              color: primaryColor,
-                              fontSize: 14,
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const ForgotPasswordPage(),));
+                            },
+                            child: const Text(
+                              "Forgot Password?",
+                              style: TextStyle(
+                                color: primaryColor,
+                                fontSize: 14,
+                              ),
                             ),
                           ),
                         ),

@@ -1,11 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthServices {
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn(); // Google Sign-In instance
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  
+  get context => null; // Google Sign-In instance
 
   // ----------------------------
   // Signup Logic
@@ -90,6 +93,20 @@ class AuthServices {
     }
   }
 
+// ----------------------------
+  // Forgot Password Logic
+  // ----------------------------
+
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email.trim());
+    } catch (e) {
+      // Do nothing, as Firebase does not return an error for unregistered emails
+    }
+  }
+
+
+
   // ----------------------------
   // Logout Logic
   // ----------------------------
@@ -103,3 +120,27 @@ class AuthServices {
     }
   }
 }
+
+// class PasswordResetResult {
+//   final String? errorCode;
+
+//   PasswordResetResult({this.errorCode});
+
+//   bool get success => errorCode == null;
+
+//   Widget get message {
+//     if (success) return const AlertDialog(content: Text("Password reset link sent to your email"),);
+//     switch (errorCode) {
+//       case 'user-not-found':
+//         return const AlertDialog(
+//           content: Text("user-not-found"),
+//         );
+//       case 'invalid-email':
+//         return const AlertDialog(content: Text("Invalid email address format"),);
+//       case 'too-many-requests':
+//         return const AlertDialog(content: Text("Too many requests. Try again later"),);
+//       default:
+//         return  const AlertDialog(content: Text("Error sending reset link. Please try again"),);
+//     }
+//   }
+// }
