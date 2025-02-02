@@ -1,8 +1,12 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:syncare/pages/auths/login_screen.dart';
+import 'package:syncare/pages/helper_classess/onboarding_helper.dart';
 import 'package:syncare/pages/intro_screens/onboarding_screen.dart';
+import 'package:syncare/pages/screens/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   
@@ -17,7 +21,50 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 4), () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const OnboardingScreen(),)),);
+    _navigateAfterDelay();
+    // Timer(const Duration(seconds: 4), () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const OnboardingScreen(),)),);
+  }
+
+
+  void _navigateAfterDelay() async {
+    // Add a delay to show the splash screen
+    await Future.delayed(const Duration(seconds: 3));
+    if (!mounted) return;
+
+    // await FirebaseAuth.instance.signOut();
+
+    bool isOnboardingCompleted = await OnboardingHelper.isOnboardingCompleted();
+    User? user = FirebaseAuth.instance.currentUser;
+    print("Onboarding Completed: $isOnboardingCompleted"); // 🔍 Debug line
+    print("User: $user"); 
+
+    if (user != null) {
+      if (mounted) {
+        Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+      }
+      
+    } else {
+      if (isOnboardingCompleted) {
+        if (mounted) {
+          Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+        }
+        
+      } else {
+        if (mounted) {
+          Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+        );
+        }
+        
+      }
+    }
   }
   @override
   Widget build(BuildContext context) {

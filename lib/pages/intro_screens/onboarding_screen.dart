@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:syncare/constants/colors.dart';
 import 'package:syncare/models/onboarding_model.dart';
 import 'package:syncare/pages/auths/login_screen.dart';
+import 'package:syncare/pages/helper_classess/onboarding_helper.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -200,24 +201,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
                       // Longer Button
                       ElevatedButton(
-                        onPressed: currentIndex == onBordingList.length - 1
-                            ? () {
-                                // Navigate to the next screen when it's the last page
-                                // Example: Navigator.pushReplacement(...)
-
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const LoginScreen(),
-                                    ));
-                              }
-                            : () {
-                                // Move to the next page in PageView
-                                controller.nextPage(
-                                  duration: const Duration(milliseconds: 500),
-                                  curve: Curves.easeInOut,
-                                );
-                              },
+                        onPressed: () async {
+                          if (currentIndex == onBordingList.length - 1) {
+                            OnboardingHelper.setOnboardingCompleted(true);
+                            
+                              Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const LoginScreen()),
+                            );
+                            
+                           
+                            
+                          } else {
+                            controller.nextPage(
+                              duration: const Duration(microseconds: 500), 
+                              curve: Curves.easeInOut);
+                          }
+                        },
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15),
