@@ -204,19 +204,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         onPressed: () async {
                           if (currentIndex == onBordingList.length - 1) {
                             OnboardingHelper.setOnboardingCompleted(true);
-                            
-                              Navigator.pushReplacement(
+
+                            Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => const LoginScreen()),
                             );
-                            
-                           
-                            
                           } else {
                             controller.nextPage(
-                              duration: const Duration(microseconds: 500), 
-                              curve: Curves.easeInOut);
+                                duration: const Duration(microseconds: 500),
+                                curve: Curves.easeInOut);
                           }
                         },
                         style: ElevatedButton.styleFrom(

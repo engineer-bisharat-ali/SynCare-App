@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:syncare/constants/colors.dart';
 import 'package:syncare/services/auth_services/auth_services.dart';
 
-// const primaryColor = Color(0x9C00BCD3); // Your Primary Color
-
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
 
@@ -36,7 +34,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           icon: const Icon(
             Icons.check_circle,
             color: Colors.green,
@@ -56,7 +55,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               onPressed: () {
                 Navigator.pop(context); // Close the dialog
                 Navigator.pop(context); // Close the Forgot Password screen
-                
               },
               child: const Text('OK', style: TextStyle(fontSize: 16)),
             ),
@@ -80,7 +78,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    
+
     return Scaffold(
       body: Stack(
         children: [
@@ -88,7 +86,10 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [primaryColor.withOpacity(0.8), primaryColor.withOpacity(0.2)],
+                colors: [
+                  primaryColor.withOpacity(0.8),
+                  primaryColor.withOpacity(0.2)
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -104,18 +105,23 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               ),
               child: Card(
                 elevation: 10,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
                 color: Colors.white.withOpacity(0.95),
                 child: Padding(
                   padding: const EdgeInsets.all(25),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Icon(Icons.lock_reset, size: 60, color: primaryColor),
+                      const Icon(Icons.lock_reset,
+                          size: 60, color: primaryColor),
                       const SizedBox(height: 15),
                       const Text(
                         'Forgot Password?',
-                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
+                        style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 10),
@@ -130,11 +136,14 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       TextFormField(
                         controller: _emailController,
                         decoration: InputDecoration(
-                          labelText: 'Email', labelStyle: const TextStyle(color: Colors.grey),
-                          prefixIcon:  Icon(Icons.email, color: Colors.grey.shade400),
+                          labelText: 'Email',
+                          labelStyle: const TextStyle(color: Colors.grey),
+                          prefixIcon:
+                              Icon(Icons.email, color: Colors.grey.shade400),
                           filled: true,
                           fillColor: Colors.grey[200],
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12)),
                         ),
                         keyboardType: TextInputType.emailAddress,
                         autofillHints: const [AutofillHints.email],
@@ -146,22 +155,31 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       SizedBox(
                         height: 50,
                         child: ElevatedButton(
-                          onPressed: _isLoading || !_isValidEmail ? null : _handlePasswordReset,
+                          onPressed: _isLoading || !_isValidEmail
+                              ? null
+                              : _handlePasswordReset,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: primaryColor,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
                           ),
                           child: _isLoading
-                              ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
-                              : const Text('Send Reset Link', style: TextStyle(fontSize: 16, color: Colors.white)),
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white, strokeWidth: 2)
+                              : const Text('Send Reset Link',
+                                  style: TextStyle(
+                                      fontSize: 16, color: Colors.white)),
                         ),
                       ),
                       const SizedBox(height: 15),
 
                       // Back to Login Button
                       TextButton(
-                        onPressed: _isLoading ? null : () => Navigator.pop(context),
-                        child: const Text('Back to Login', style: TextStyle(fontSize: 16, color: Colors.black54)),
+                        onPressed:
+                            _isLoading ? null : () => Navigator.pop(context),
+                        child: const Text('Back to Login',
+                            style:
+                                TextStyle(fontSize: 16, color: Colors.black54)),
                       ),
                     ],
                   ),

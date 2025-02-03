@@ -9,7 +9,6 @@ import 'package:syncare/pages/intro_screens/onboarding_screen.dart';
 import 'package:syncare/pages/screens/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
-  
   const SplashScreen({super.key});
 
   @override
@@ -17,14 +16,11 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
   @override
   void initState() {
     super.initState();
     _navigateAfterDelay();
-    // Timer(const Duration(seconds: 4), () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const OnboardingScreen(),)),);
   }
-
 
   void _navigateAfterDelay() async {
     // Add a delay to show the splash screen
@@ -35,40 +31,39 @@ class _SplashScreenState extends State<SplashScreen> {
 
     bool isOnboardingCompleted = await OnboardingHelper.isOnboardingCompleted();
     User? user = FirebaseAuth.instance.currentUser;
+
+    //for ensure the value to validate
     print("Onboarding Completed: $isOnboardingCompleted"); // 🔍 Debug line
-    print("User: $user"); 
+    print("User: $user");
 
     if (user != null) {
       if (mounted) {
         Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
       }
-      
     } else {
       if (isOnboardingCompleted) {
         if (mounted) {
           Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-        );
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+          );
         }
-        
       } else {
         if (mounted) {
           Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const OnboardingScreen()),
-        );
+            context,
+            MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+          );
         }
-        
       }
     }
   }
+
   @override
   Widget build(BuildContext context) {
-    
     // To access the Screen size we use MediaQuery
     final screenWidth = MediaQuery.of(context).size.width;
     final screenheight = MediaQuery.of(context).size.height;

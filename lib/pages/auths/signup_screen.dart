@@ -63,7 +63,7 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   // ----------------------------
-  // Sigup Method
+  // Sigup with email/password Method 
   // ----------------------------
   void signUpUser() async {
     if (_formKey.currentState!.validate()) {

@@ -6,11 +6,10 @@ class CustomFormButton extends StatelessWidget {
     super.key,
     required this.onPressed,
     required this.text,
-    });
-  
+  });
+
   final String text;
   final VoidCallback onPressed;
-  
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +23,7 @@ class CustomFormButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(15),
         ),
       ),
-      child:  Text(
+      child: Text(
         text,
         style: const TextStyle(
           color: Colors.white,
