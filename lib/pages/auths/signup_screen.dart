@@ -5,6 +5,7 @@ import 'package:syncare/constants/colors.dart';
 import 'package:syncare/pages/auths/login_screen.dart';
 import 'package:syncare/pages/screens/home_screen.dart';
 import 'package:syncare/services/auth_services/auth_services.dart';
+import 'package:syncare/widgets/bottom_navbar.dart';
 import 'package:syncare/widgets/custom_form_button.dart';
 import 'package:syncare/widgets/customtextfield.dart';
 import 'package:syncare/widgets/form_footer_section.dart';
@@ -48,7 +49,7 @@ class _SignupScreenState extends State<SignupScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => const HomeScreen(),
+            builder: (context) => const BottomNavbar(),
           ),
         );
       }
@@ -83,7 +84,7 @@ class _SignupScreenState extends State<SignupScreen> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => const HomeScreen(),
+                builder: (context) => const BottomNavbar(),
               ),
             );
           }
