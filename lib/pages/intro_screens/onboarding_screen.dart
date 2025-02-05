@@ -31,7 +31,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         actions: [
           if (currentIndex < onBordingList.length - 1)
             TextButton(
-              onPressed: () {
+              onPressed: () async {
+                bool isOnboardingCompleted = await OnboardingHelper.isOnboardingCompleted();
+                OnboardingHelper.setOnboardingCompleted(true);
+                print('Skip value:$isOnboardingCompleted');
                 Navigator.push(
                     context,
                     MaterialPageRoute(
