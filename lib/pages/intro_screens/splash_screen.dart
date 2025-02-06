@@ -6,7 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:syncare/pages/auths/login_screen.dart';
 import 'package:syncare/pages/helper_classess/onboarding_helper.dart';
 import 'package:syncare/pages/intro_screens/onboarding_screen.dart';
-import 'package:syncare/pages/screens/home_screen.dart';
+// import 'package:syncare/pages/screens/home_screen.dart';
 import 'package:syncare/widgets/bottom_navbar.dart';
 
 class SplashScreen extends StatefulWidget {

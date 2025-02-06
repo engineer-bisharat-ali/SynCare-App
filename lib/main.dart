@@ -1,7 +1,6 @@
 // import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-
 // signup_screen.dart';
 import 'package:syncare/pages/intro_screens/splash_screen.dart';
 // import 'package:syncare/pages/screens/home_screen.dart';

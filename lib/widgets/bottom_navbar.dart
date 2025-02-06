@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:syncare/constants/colors.dart';
-import 'package:syncare/pages/auths/forgot_password_page.dart';
 import 'package:syncare/pages/screens/home_screen.dart';
+import 'package:syncare/pages/screens/profile_screen.dart';
 
 class BottomNavbar extends StatefulWidget {
   const BottomNavbar({super.key});
@@ -18,7 +18,7 @@ class _BottomNavbarState extends State<BottomNavbar> {
     const HomeScreen(),
     const HomeScreen(),
     const HomeScreen(),
-    const HomeScreen(),
+    const ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -60,7 +60,7 @@ class _BottomNavbarState extends State<BottomNavbar> {
           child: GNav(
             selectedIndex: _selectedIndex,
             backgroundColor: Colors.transparent,
-            duration: const Duration(milliseconds: 500),
+            duration: const Duration(milliseconds: 600),
             curve: Curves.easeInOut,
             hoverColor: primaryColor,
             haptic: true,
