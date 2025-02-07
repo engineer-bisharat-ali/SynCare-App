@@ -61,6 +61,8 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.all(14.0),
           child: Column(
             children: [
+              //info Bannaer
+              _buildInfoBanner(),
               const SizedBox(
                 height: 10,
               ),
@@ -126,6 +128,41 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildInfoBanner() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          colors: [primaryColor.withOpacity(0.8), primaryColor],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: const Row(
+        children: [
+          Expanded(
+            child: Text(
+              "Stay healthy and informed with Syncare. Manage your records and track your symptoms with ease.",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          SizedBox(width: 10),
+          Icon(
+            Icons.health_and_safety,
+            color: Colors.white,
+            size: 40,
+          ),
+        ],
       ),
     );
   }
