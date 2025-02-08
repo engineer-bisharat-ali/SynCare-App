@@ -46,7 +46,7 @@ class AuthServices {
       User? user = result.user;
       return user;
     } on FirebaseAuthException catch (e) {
-      throw e.message ?? "An error occurred during sign up.";
+      throw e.message ?? "An error occurred during sign in.";
     }
   }
 
@@ -80,8 +80,8 @@ class AuthServices {
         await _firebaseFirestore.collection("users").doc(user.uid).set({
           'name': user.displayName ?? "No Name",
           'email': user.email,
-          // 'uid': user.uid,
-          // 'photoUrl': user.photoURL,
+          'uid': user.uid,
+          'photoUrl': user.photoURL,
         });
       }
 
@@ -93,7 +93,7 @@ class AuthServices {
     }
   }
 
-// ----------------------------
+  // ----------------------------
   // Forgot Password Logic
   // ----------------------------
 
@@ -118,3 +118,4 @@ class AuthServices {
     }
   }
 }
+

@@ -66,6 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(
                 height: 10,
               ),
+              // Two Feature Cards
               IntrinsicHeight(
                 // Ensures equal height in each row
                 child: Row(
@@ -83,6 +84,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
+
+              const SizedBox(
+                height: 10,
+              ),
+              //see all button
+              _buildSectionTitle("Records"),
             ],
           ),
         ),
@@ -94,26 +101,26 @@ class _HomeScreenState extends State<HomeScreen> {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(15),
       ),
       child: Container(
         width: width,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(15),
           gradient: LinearGradient(
             colors: [primaryColor.withOpacity(0.8), primaryColor],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 25),
+        padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 22),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SvgPicture.asset(
               imagePath,
-              width: 40,
-              height: 40,
+              width: 50,
+              height: 50,
               colorFilter:
                   const ColorFilter.mode(Colors.white, BlendMode.srcIn),
             ),
@@ -135,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildInfoBanner() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         gradient: LinearGradient(
@@ -161,6 +168,41 @@ class _HomeScreenState extends State<HomeScreen> {
             Icons.health_and_safety,
             color: Colors.white,
             size: 40,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 6.0),
+      decoration: BoxDecoration(
+        color: primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: primaryColor,
+            ),
+          ),
+          TextButton(
+            onPressed: () {},
+            child: const Text(
+              "See All",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: primaryColor,
+              ),
+            ),
           ),
         ],
       ),
