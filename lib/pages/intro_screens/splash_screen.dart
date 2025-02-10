@@ -37,7 +37,6 @@ class _SplashScreenState extends State<SplashScreen> {
     print("Onboarding Completed: $isOnboardingCompleted"); // 🔍 Debug line
     print("User: $user");
 
-
     if (user != null) {
       if (mounted) {
         Navigator.pushReplacement(
@@ -74,8 +73,8 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Center(
         child: SizedBox(
           // Responsive width and height adjust
-          height: screenWidth * 0.3, // 50% of screen width
-          width: screenheight * 0.4, // 50% of screen height
+          height: screenWidth * 0.4,
+          width: screenheight * 0.4,
           child: SvgPicture.asset("Assets/icons/ic-SynCare-logo.svg"),
         ),
       ),
