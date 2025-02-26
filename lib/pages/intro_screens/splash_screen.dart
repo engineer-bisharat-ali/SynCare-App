@@ -73,8 +73,8 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Center(
         child: SizedBox(
           // Responsive width and height adjust
-          height: screenWidth * 0.4,
-          width: screenheight * 0.4,
+          height: screenWidth * 0.35,
+          width: screenheight * 0.35,
           child: SvgPicture.asset("Assets/icons/ic-SynCare-logo.svg"),
         ),
       ),

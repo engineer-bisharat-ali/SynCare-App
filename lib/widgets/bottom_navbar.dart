@@ -3,6 +3,7 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:syncare/constants/colors.dart';
 import 'package:syncare/pages/screens/home_screen.dart';
 import 'package:syncare/pages/screens/profile_screen.dart';
+import 'package:syncare/pages/screens/records_screens/records_screen.dart';
 
 class BottomNavbar extends StatefulWidget {
   const BottomNavbar({super.key});
@@ -16,7 +17,7 @@ class _BottomNavbarState extends State<BottomNavbar> {
 
   static final List<Widget> _screens = [
     const HomeScreen(),
-    const HomeScreen(),
+    const RecordsScreen(),
     const HomeScreen(),
     const ProfileScreen(),
   ];
@@ -36,15 +37,15 @@ class _BottomNavbarState extends State<BottomNavbar> {
       body: _screens[_selectedIndex],
       bottomNavigationBar: Container(
         margin: EdgeInsets.symmetric(
-          horizontal: screenWidth * 0.04, // 4% of screen width
-          vertical: 15,
+          horizontal: screenWidth * 0.03, // 4% of screen width
+          vertical: 22,
         ),
         padding: EdgeInsets.symmetric(
           horizontal: screenWidth * 0.03, // 3% of screen width
           vertical: screenWidth * 0.02, // 2% of screen width
         ),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.95),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
@@ -68,7 +69,7 @@ class _BottomNavbarState extends State<BottomNavbar> {
             gap: 8,
             color: Colors.grey.shade800,
             activeColor: Colors.white,
-            tabBackgroundColor: primaryColor.withOpacity(0.9),
+            tabBackgroundColor: primaryColor.withOpacity(0.8),
             tabMargin: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
             iconSize: screenWidth * 0.065, // Adaptive icon size
             textStyle: TextStyle(

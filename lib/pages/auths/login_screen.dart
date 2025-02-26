@@ -6,6 +6,7 @@ import 'package:syncare/pages/auths/forgot_password_page.dart';
 import 'package:syncare/pages/auths/signup_screen.dart';
 import 'package:syncare/pages/screens/home_screen.dart';
 import 'package:syncare/services/auth_services/auth_services.dart';
+import 'package:syncare/widgets/bottom_navbar.dart';
 import 'package:syncare/widgets/custom_form_button.dart';
 import 'package:syncare/widgets/customtextfield.dart';
 import 'package:syncare/widgets/form_footer_section.dart';
@@ -42,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => const HomeScreen(),
+                builder: (context) => const BottomNavbar(),
               ),
             );
           }

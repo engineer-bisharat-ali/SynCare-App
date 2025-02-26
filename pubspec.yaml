@@ -43,10 +43,21 @@ dependencies:
   shared_preferences: ^2.3.3
   google_nav_bar: ^5.0.6
   line_icons: ^2.0.2
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  path_provider: ^2.1.5
+  provider: ^6.1.2
+  file_picker: ^8.3.2
+  open_file: ^3.2.1
+  google_fonts: ^6.2.1
+  # flutter_keyboard_visibility: ^5.4.1
 
 dev_dependencies:
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.11
   flutter_test:
     sdk: flutter
+  
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
