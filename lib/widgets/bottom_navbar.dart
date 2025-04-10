@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:syncare/constants/colors.dart';
 import 'package:syncare/pages/screens/home_screen.dart';
+import 'package:syncare/pages/screens/maps_screen.dart';
 import 'package:syncare/pages/screens/profile_screen.dart';
 import 'package:syncare/pages/screens/records_screens/records_screen.dart';
 
@@ -18,7 +19,7 @@ class _BottomNavbarState extends State<BottomNavbar> {
   static final List<Widget> _screens = [
     const HomeScreen(),
     const RecordsScreen(),
-    const HomeScreen(),
+    const MapsScreen(),
     const ProfileScreen(),
   ];
 

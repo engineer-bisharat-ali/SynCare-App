@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.syncare"
+    namespace "com.example.syncare"
     compileSdk = 34
     ndkVersion "25.1.8937393" // Added NDK version
 

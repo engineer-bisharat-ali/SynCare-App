@@ -4,7 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:syncare/constants/colors.dart';
 import 'package:syncare/pages/auths/forgot_password_page.dart';
 import 'package:syncare/pages/auths/signup_screen.dart';
-import 'package:syncare/pages/screens/home_screen.dart';
+// import 'package:syncare/pages/screens/home_screen.dart';
 import 'package:syncare/services/auth_services/auth_services.dart';
 import 'package:syncare/widgets/bottom_navbar.dart';
 import 'package:syncare/widgets/custom_form_button.dart';

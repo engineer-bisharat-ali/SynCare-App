@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:syncare/constants/colors.dart';
 import 'package:syncare/pages/auths/login_screen.dart';
+import 'package:syncare/pages/screens/records_screens/records_screen.dart';
 import 'package:syncare/services/auth_services/auth_services.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -73,10 +74,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Expanded(
-                        child: _buildFeatureCard(
-                            "Assets/icons/medical-records.svg",
-                            "Add Medical\nRecords",
-                            cardWidth)),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const RecordsScreen()));
+                          },
+                          child: _buildFeatureCard(
+                              "Assets/icons/medical-records.svg",
+                              "Add Medical\nRecords",
+                              cardWidth),
+                        )),
                     const SizedBox(width: 5),
                     Expanded(
                         child: _buildFeatureCard("Assets/icons/sick_icon.svg",
