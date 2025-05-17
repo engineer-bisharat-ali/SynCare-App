@@ -47,8 +47,8 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text("Record Added Successfully!"),
+        const SnackBar(
+          content: Text("Record Added Successfully!"),
           backgroundColor: Colors.green,
         ),
       );

@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 // signup_screen.dart';
 import 'package:syncare/pages/intro_screens/splash_screen.dart';
 import 'package:syncare/provider/records_provider.dart';
+import 'package:syncare/provider/symptom_provider.dart';
 // import 'package:syncare/pages/screens/home_screen.dart';
 
 void main() async {
@@ -24,7 +25,9 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+
         ChangeNotifierProvider(create: (_) => RecordsProvider()),
+        ChangeNotifierProvider(create: (_) => SymptomProvider()..loadSymptoms()),
       ],
       child: const MyApp(),
     ),
