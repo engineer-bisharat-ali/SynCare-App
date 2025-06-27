@@ -13,8 +13,6 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-  
-
 class _HomeScreenState extends State<HomeScreen> {
   final AuthServices _authServices = AuthServices();
 
@@ -35,26 +33,47 @@ class _HomeScreenState extends State<HomeScreen> {
         screenWidth > 600 ? screenWidth * 0.4 : screenWidth * 0.45;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
+        elevation: 0,
+        shadowColor: Colors.black.withOpacity(0.1),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'Syn',
-              style: TextStyle(
-                color: primaryColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 26,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              decoration: BoxDecoration(
+                color: primaryColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20),
               ),
-            ),
-            Text(
-              'care',
-              style: TextStyle(
-                color: Colors.black.withOpacity(0.8),
-                fontWeight: FontWeight.bold,
-                fontSize: 26,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  //  Image.asset(
+                  //   'Assets/images/logo.png',
+                    
+                  //   width: 20,
+                  //   height: 20,
+                  // ),
+                  // const SizedBox(width: 6),
+                  const Text(
+                    'Syn',
+                    style: TextStyle(
+                      color: primaryColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                    ),
+                  ),
+                  Text(
+                    'care',
+                    style: TextStyle(
+                      color: Colors.black.withOpacity(0.8),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -62,48 +81,71 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(14.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              //info Bannaer
-              _buildInfoBanner(),
-              const SizedBox(
-                height: 10,
-              ),
-              // Two Feature Cards
+              // Info Banner
+              _buildBanner(),
+              const SizedBox(height: 24),
+              
+              // Quick Actions Title
+              _buildQuickActionsTitle(),
+              const SizedBox(height: 16),
+              
+              // Feature Cards
               IntrinsicHeight(
-                // Ensures equal height in each row
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const RecordsScreen()));
-                          },
-                          child: _buildFeatureCard(
-                              "Assets/icons/medical-records.svg",
-                              "Add Medical\nRecords",
-                              cardWidth),
-                        )),
-                    const SizedBox(width: 5),
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const RecordsScreen(),
+                            ),
+                          );
+                        },
+                        child: _buildFeatureCard(
+                          "Assets/icons/medical-records.svg",
+                          "Medical Records",
+                          "Manage Documents",
+                          cardWidth,
+                          Icons.folder_shared,
+                          Colors.blue.shade300,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
                     Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const SymptomsTrackerScreen()));
-                          },
-                          child: _buildFeatureCard("Assets/icons/sick_icon.svg",
-                              "Symptoms\nTracker", cardWidth),
-                        )),
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SymptomsTrackerScreen(),
+                            ),
+                          );
+                        },
+                        child: _buildFeatureCard(
+                          "Assets/icons/sick_icon.svg",
+                          "Symptoms Tracker",
+                          "Monitor Health",
+                          cardWidth,
+                          Icons.monitor_heart,
+                          Colors.red.shade300,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
 
-              const SizedBox(
-                height: 10,
-              ),
-              //see all button
-              _buildSectionTitle("Records"),
+              const SizedBox(height: 24),
+              _buildQuickAccessFeatures(),
+              const SizedBox(height: 16),
             ],
           ),
         ),
@@ -111,114 +153,308 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildFeatureCard(String imagePath, String text, double width) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
+  Widget _buildQuickActionsTitle() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Text(
+        "Quick Actions",
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.black.withOpacity(0.8),
+        ),
       ),
-      child: Container(
-        width: width,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          gradient: LinearGradient(
-            colors: [primaryColor.withOpacity(0.8), primaryColor],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+    );
+  }
+
+  Widget _buildFeatureCard(String imagePath, String title, String subtitle, 
+      double width, IconData fallbackIcon, Color accentColor) {
+    return Container(
+      
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: accentColor.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: Card(
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Container(
+          width: width,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            gradient: LinearGradient(
+              colors: [
+                Colors.grey.shade50,
+                accentColor.withOpacity(0.05),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+            border: Border.all(
+              color: accentColor.withOpacity(0.2),
+              width: 1.5,
+            ),
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [accentColor.withOpacity(0.8), accentColor],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: accentColor.withOpacity(0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: SvgPicture.asset(
+                  imagePath,
+                  width: 32,
+                  height: 32,
+                  colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                  placeholderBuilder: (context) => Icon(
+                    fallbackIcon,
+                    color: Colors.white,
+                    size: 32,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[800],
+                  height: 1.2,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                subtitle,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
           ),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 22),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      ),
+    );
+  }
+
+  Widget _buildBanner() {
+  return Container(
+    padding: const EdgeInsets.all(24),
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [
+          Colors.indigo.shade50,
+          Colors.blue.shade50,
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+      borderRadius: BorderRadius.circular(24),
+      border: Border.all(color: Colors.indigo.withOpacity(0.2)),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
-            SvgPicture.asset(
-              imagePath,
-              width: 50,
-              height: 50,
-              colorFilter:
-                  const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.indigo.shade300, Colors.blue.shade300],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(
+                Icons.health_and_safety_rounded,
+                color: Colors.white,
+                size: 24,
+              ),
             ),
-            const SizedBox(height: 10),
-            Text(
-              text,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white),
+            const SizedBox(width: 16),
+            const Text(
+              "Your Health Companion",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.indigo,
+              ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildInfoBanner() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(
-          colors: [primaryColor.withOpacity(0.8), primaryColor],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: const Row(
-        children: [
-          Expanded(
-            child: Text(
-              "Stay healthy and informed with Syncare. Manage your records and track your symptoms with ease.",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          SizedBox(width: 10),
-          Icon(
-            Icons.health_and_safety,
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
             color: Colors.white,
-            size: 40,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.indigo.withOpacity(0.1)),
           ),
-        ],
-      ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Smart Health Insights",
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[800],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "Track symptoms, get early predictions, and manage records — all in one secure platform built for your well-being.",
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey[600],
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+
+  Widget _buildQuickAccessFeatures() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text(
+            "Quick Access",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black.withOpacity(0.8),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: _buildQuickAccessCard(
+                "Emergency Contacts",
+                Icons.emergency,
+                Colors.red.shade400,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildQuickAccessCard(
+                "Medicine Reminders",
+                Icons.access_time,
+                Colors.orange.shade400,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildQuickAccessCard(
+                "Health Reports",
+                Icons.assignment,
+                Colors.teal.shade400,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildQuickAccessCard(
+                "Appointments",
+                Icons.calendar_month,
+                Colors.purple.shade400,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 6.0),
-      decoration: BoxDecoration(
-        color: primaryColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(15.0),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: primaryColor,
+  Widget _buildQuickAccessCard(String title, IconData icon, Color color) {
+    return GestureDetector(
+      onTap: () {
+        // Add navigation logic here
+      },
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withOpacity(0.2)),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.1),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
-          ),
-          TextButton(
-            onPressed: () {},
-            child: const Text(
-              "See All",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: primaryColor,
+          ],
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 24,
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[800],
+                height: 1.2,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

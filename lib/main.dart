@@ -25,7 +25,6 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-
         ChangeNotifierProvider(create: (_) => RecordsProvider()),
         ChangeNotifierProvider(create: (_) => SymptomProvider()..loadSymptoms()),
       ],

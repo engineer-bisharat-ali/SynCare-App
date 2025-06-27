@@ -20,7 +20,7 @@ class _BottomNavbarState extends State<BottomNavbar> {
     const HomeScreen(),
     const RecordsScreen(),
     const MapsScreen(),
-    const ProfileScreen(),
+    const ProfileMenuScreen(),
   ];
 
   void _onItemTapped(int index) {

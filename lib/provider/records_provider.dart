@@ -25,7 +25,7 @@ class RecordsProvider extends ChangeNotifier {
   }
 
   //  Function to get Records from Hive
-  void addRecord(String category, String title, String description, String filePath, String fileType) {
+  void addRecord(String category, String title, String description, String filePath, String fileType, DateTime selectedDate) {
     MedicalRecord record = MedicalRecord(
       id: DateTime.now().toString(),
       userId: "CURRENT_USER_ID",
@@ -55,20 +55,19 @@ class RecordsProvider extends ChangeNotifier {
 
   
   void searchRecords(String query) {
-  currentQuery = query; // ✅ Query ko save karna zaroori hai
+  currentQuery = query;
 
   if (query.isEmpty) {
     _filteredRecords = [];
-  }
-    // add featire During the search if query and records are not matching then we message no records found
-     else {
+  } else {
     _filteredRecords = _records.where((record) {
-      return record.title.toLowerCase().startsWith(query.toLowerCase());
+      return record.category.toLowerCase().startsWith(query.toLowerCase());
     }).toList();
   }
 
   notifyListeners();
 }
-  
+
+
   
 }
