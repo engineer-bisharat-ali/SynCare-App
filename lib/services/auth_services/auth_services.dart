@@ -1,14 +1,15 @@
+import 'package:flutter/material.dart'; 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
+import 'package:syncare/provider/records_provider.dart';
+
 
 class AuthServices {
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
-
-  get context => null; // Google Sign-In instance
 
   // ----------------------------
   // Signup Logic
@@ -109,13 +110,15 @@ class AuthServices {
   // Logout Logic
   // ----------------------------
 
-  Future<void> logout() async {
+  Future<void> logout(BuildContext context) async {
     try {
+      final recordsProvider =
+          Provider.of<RecordsProvider>(context, listen: false);
+      await recordsProvider.closeBoxOnLogout();
       await _auth.signOut();
-      await _googleSignIn.signOut();
+      await _googleSignIn.disconnect();
     } catch (e) {
       print("Error logging out: $e");
     }
   }
 }
-

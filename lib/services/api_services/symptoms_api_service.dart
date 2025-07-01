@@ -4,7 +4,7 @@ import 'package:syncare/models/symptom_model.dart';
 
 // A service class responsible for handling all API requests related to symptoms
 class SymptomsApiService {
-  static const String _baseUrl = 'https://syncare-symptom-api-production.up.railway.app';
+  static const String _baseUrl = 'https://syncare-symptom-api-production.up.railway.app/';
 
   // Fetch list of symptoms from the API and convert to List<SymptomModel>
   static Future<List<SymptomModel>> fetchSymptoms() async {

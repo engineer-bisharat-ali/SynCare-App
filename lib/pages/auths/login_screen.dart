@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import 'package:syncare/constants/colors.dart';
 import 'package:syncare/pages/auths/forgot_password_page.dart';
 import 'package:syncare/pages/auths/signup_screen.dart';
+import 'package:syncare/provider/records_provider.dart';
 // import 'package:syncare/pages/screens/home_screen.dart';
 import 'package:syncare/services/auth_services/auth_services.dart';
 import 'package:syncare/widgets/bottom_navbar.dart';
@@ -39,6 +41,11 @@ class _LoginScreenState extends State<LoginScreen> {
         User? user =
             await _authServices.signInWithEmailAndPassword(email, password);
         if (user != null) {
+          if (!mounted) return;
+         final recordsProvider =
+              Provider.of<RecordsProvider>(context, listen: false);
+          await recordsProvider.initBoxForUser(user.uid);
+
           if (mounted) {
             Navigator.pushReplacement(
               context,

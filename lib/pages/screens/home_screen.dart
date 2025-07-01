@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:syncare/constants/colors.dart';
-import 'package:syncare/pages/auths/login_screen.dart';
+// import 'package:syncare/pages/auths/login_screen.dart';
 import 'package:syncare/pages/screens/records_screens/records_screen.dart';
 import 'package:syncare/pages/screens/symptoms_tracker_screen.dart';
-import 'package:syncare/services/auth_services/auth_services.dart';
+// import 'package:syncare/services/auth_services/auth_services.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,17 +14,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final AuthServices _authServices = AuthServices();
+  // final AuthServices _authServices = AuthServices();
 
-  void signOut() async {
-    await _authServices.logout();
-    if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

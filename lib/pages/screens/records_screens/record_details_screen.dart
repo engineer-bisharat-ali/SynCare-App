@@ -142,7 +142,7 @@ class RecordDetailsScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  record.category,
+                  record.title,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -152,7 +152,7 @@ class RecordDetailsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  record.title,
+                  record.category,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,

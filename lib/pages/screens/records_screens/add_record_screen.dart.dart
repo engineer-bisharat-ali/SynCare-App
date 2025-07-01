@@ -89,23 +89,25 @@ class AddRecordScreenState extends State<AddRecordScreen> {
     setState(() => _isLoading = true);
     _formKey.currentState!.save();
 
-    // Set final title and category values
     final finalTitle = _isCustomTitle ? _customTitleController.text : _selectedTitle!;
     final finalCategory = _isCustomCategory ? _customCategoryController.text : _selectedCategory!;
 
     await Future.delayed(const Duration(milliseconds: 500));
 
-    // Check if the widget is still mounted before using context
     if (!mounted) return;
 
+   
     Provider.of<RecordsProvider>(context, listen: false).addRecord(
-      finalTitle,
       finalCategory,
+      finalTitle,
       _description,
       _selectedFile!.path,
       _fileType!,
-      DateTime.now(), // Added the missing 6th argument, adjust as needed
+      DateTime.now(),
     );
+
+    // ✅ Immediately reload updated records
+    Provider.of<RecordsProvider>(context, listen: false).loadLocalRecords();
 
     setState(() => _isLoading = false);
     _showSnackBar("Record Added Successfully", "Your medical record has been securely saved", _successGreen);
@@ -114,6 +116,7 @@ class AddRecordScreenState extends State<AddRecordScreen> {
     _showSnackBar("Incomplete Information", "Please fill all required fields and attach a file", _warningOrange);
   }
 }
+
   @override
   void dispose() {
     _customTitleController.dispose();
@@ -199,7 +202,7 @@ class AddRecordScreenState extends State<AddRecordScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min, // ✅ prevents unbounded issue
                 children: [
-                  Icon(Icons.arrow_right, size: 18, color: primaryColor),
+                  const Icon(Icons.arrow_right, size: 18, color: primaryColor),
                   const SizedBox(width: 8),
                   Flexible(
                     fit: FlexFit.loose, // ✅ no expansion issue
@@ -251,7 +254,7 @@ class AddRecordScreenState extends State<AddRecordScreen> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: primaryColor, width: 2),
+              borderSide: const BorderSide(color: primaryColor, width: 2),
             ),
             contentPadding: const EdgeInsets.all(16),
           ),
@@ -338,7 +341,7 @@ class AddRecordScreenState extends State<AddRecordScreen> {
               const SizedBox(height: 8),
               Text(
                 _selectedFile!.path.split('/').last,
-                style: TextStyle(fontSize: 12, color: primaryColor, fontWeight: FontWeight.w600),
+                style: const TextStyle(fontSize: 12, color: primaryColor, fontWeight: FontWeight.w600),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -364,9 +367,9 @@ class AddRecordScreenState extends State<AddRecordScreen> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(Icons.cloud_upload, size: 40, color: primaryColor),
+        const Icon(Icons.cloud_upload, size: 40, color: primaryColor),
         const SizedBox(height: 8),
-        Text(
+        const Text(
           "Upload Medical File",
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: primaryColor),
         ),
@@ -526,7 +529,7 @@ class AddRecordScreenState extends State<AddRecordScreen> {
                       maxLines: 4,
                       decoration: InputDecoration(
                         hintText: "Provide details about this medical record...",
-                        prefixIcon: Icon(Icons.description, color: primaryColor),
+                        prefixIcon: const Icon(Icons.description, color: primaryColor),
                         filled: true,
                         fillColor: _cardWhite,
                         border: OutlineInputBorder(
@@ -535,7 +538,7 @@ class AddRecordScreenState extends State<AddRecordScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: primaryColor, width: 2),
+                          borderSide: const BorderSide(color: primaryColor, width: 2),
                         ),
                         contentPadding: const EdgeInsets.all(16),
                       ),

@@ -3,71 +3,87 @@ import 'package:hive/hive.dart';
 import 'package:syncare/models/medical_records.dart';
 
 class RecordsProvider extends ChangeNotifier {
-  //  Box for Medical Records
-  Box recordsBox = Hive.box('medical_records');
-  //  List of Records
-   List<MedicalRecord> _records = [];
-   //List for filtered records
+  late Box recordsBox;
+
+  List<MedicalRecord> _records = [];
   List<MedicalRecord> _filteredRecords = [];
-  //  Current search query
   String currentQuery = '';
+  String? currentUserId;
 
-  //  Getter for Records
-  List<MedicalRecord> get records => _filteredRecords.isEmpty ? _records : _filteredRecords;
+  List<MedicalRecord> get records =>
+      _filteredRecords.isEmpty ? _records : _filteredRecords;
 
-  //  Function to load Records from Hive
+  Future<void> initBoxForUser(String uid) async {
+    currentUserId = uid;
+    recordsBox = await Hive.openBox('medical_records_$uid');
+    loadLocalRecords();
+  }
+
+  Future<void> closeBoxOnLogout() async {
+    await recordsBox.close();
+    _records.clear();
+    _filteredRecords.clear();
+    currentUserId = null;
+    notifyListeners();
+  }
+
   void loadLocalRecords() {
     _records = recordsBox.values
         .map((e) => MedicalRecord.fromMap(Map<String, dynamic>.from(e)))
         .toList();
-        _filteredRecords = [];
+    _filteredRecords = [];
     notifyListeners();
   }
 
-  //  Function to get Records from Hive
-  void addRecord(String category, String title, String description, String filePath, String fileType, DateTime selectedDate) {
-    MedicalRecord record = MedicalRecord(
-      id: DateTime.now().toString(),
-      userId: "CURRENT_USER_ID",
+  void addRecord(
+    String category,
+    String title,
+    String description,
+    String filePath,
+    String fileType,
+    DateTime selectedDate,
+  ) {
+    if (currentUserId == null) return;
+
+    final record = MedicalRecord(
+      id: DateTime.now().toIso8601String(),
+      userId: currentUserId!,
       category: category,
       title: title,
       description: description,
       filePath: filePath,
       fileType: fileType,
     );
+
     _records.add(record);
     recordsBox.put(record.id, record.toMap());
-     if (_filteredRecords.isNotEmpty) {
-    searchRecords(currentQuery); // ✅ Search query maintain rakhni hai
-  }
+
+    if (_filteredRecords.isNotEmpty) {
+      searchRecords(currentQuery);
+    }
+
     notifyListeners();
   }
 
   void removeRecord(String recordId) {
     _records.removeWhere((record) => record.id == recordId);
     recordsBox.delete(recordId);
-
-    if (_filteredRecords.isNotEmpty) {
-      _filteredRecords.removeWhere((record) => record.id == recordId);
-    }
+    _filteredRecords.removeWhere((record) => record.id == recordId);
     notifyListeners();
   }
 
-  
   void searchRecords(String query) {
-  currentQuery = query;
+    currentQuery = query;
 
-  if (query.isEmpty) {
-    _filteredRecords = [];
-  } else {
-    _filteredRecords = _records.where((record) {
-      return record.category.toLowerCase().startsWith(query.toLowerCase());
-    }).toList();
+    if (query.isEmpty) {
+      _filteredRecords = [];
+    } else {
+      _filteredRecords = _records.where((record) {
+        return record.title.toLowerCase().contains(query.toLowerCase()) ||
+               record.category.toLowerCase().contains(query.toLowerCase());
+      }).toList();
+    }
+
+    notifyListeners();
   }
-
-  notifyListeners();
-}
-
-
-  
 }

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:syncare/constants/colors.dart';
 import 'package:syncare/pages/auths/login_screen.dart';
+import 'package:syncare/services/auth_services/auth_services.dart';
 
 class ProfileMenuScreen extends StatefulWidget {
   const ProfileMenuScreen({super.key});
@@ -60,24 +61,28 @@ class _ProfileMenuScreenState extends State<ProfileMenuScreen>
     }
   }
 
-  Future<void> _logout() async {
-    final shouldLogout = await _showStyledDialog(
-      title: 'Logout',
-      content: 'Are you sure you want to logout?',
-      icon: Icons.logout,
-      color: Colors.red,
-      showActions: true,
-    );
-    if (shouldLogout == true) {
-      await FirebaseAuth.instance.signOut();
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-        );
-      }
+ Future<void> _logout() async {
+  final shouldLogout = await _showStyledDialog(
+    title: 'Logout',
+    content: 'Are you sure you want to logout?',
+    icon: Icons.logout,
+    color: Colors.red,
+    showActions: true,
+  );
+
+  if (shouldLogout == true) {
+    if (!mounted) return;
+    await AuthServices().logout(context); 
+
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
     }
   }
+}
+
 
   Future<dynamic> _showStyledDialog({
     required String title,

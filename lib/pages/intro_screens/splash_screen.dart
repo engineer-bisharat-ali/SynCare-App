@@ -376,13 +376,13 @@ class _SplashScreenState extends State<SplashScreen>
                               height: 50,
                               child: CircularProgressIndicator(
                                 strokeWidth: 4,
-                                valueColor: AlwaysStoppedAnimation<Color>(
+                                valueColor: const AlwaysStoppedAnimation<Color>(
                                   primaryColor,
                                 ),
                                 backgroundColor: primaryColor.withOpacity(0.2),
                               ),
                             ),
-                            Icon(
+                            const Icon(
                               Icons.favorite,
                               color: primaryColor,
                               size: 20,
@@ -461,17 +461,17 @@ class MedicalPatternPainter extends CustomPainter {
       for (int j = 0; j < 3; j++) {
         final centerX = (size.width / 4) * (i + 0.5);
         final centerY = (size.height / 3) * (j + 0.5);
-        final size_cross = 20 + 5 * math.sin(animationValue * 2 * math.pi + i + j);
+        final sizeCross = 20 + 5 * math.sin(animationValue * 2 * math.pi + i + j);
         
         // Draw cross
         canvas.drawLine(
-          Offset(centerX - size_cross, centerY),
-          Offset(centerX + size_cross, centerY),
+          Offset(centerX - sizeCross, centerY),
+          Offset(centerX + sizeCross, centerY),
           paint,
         );
         canvas.drawLine(
-          Offset(centerX, centerY - size_cross),
-          Offset(centerX, centerY + size_cross),
+          Offset(centerX, centerY - sizeCross),
+          Offset(centerX, centerY + sizeCross),
           paint,
         );
       }

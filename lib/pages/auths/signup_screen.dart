@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import 'package:syncare/constants/colors.dart';
 import 'package:syncare/pages/auths/login_screen.dart';
+import 'package:syncare/provider/records_provider.dart';
 // import 'package:syncare/pages/screens/home_screen.dart';
 import 'package:syncare/services/auth_services/auth_services.dart';
 import 'package:syncare/widgets/bottom_navbar.dart';
@@ -41,69 +43,80 @@ class _SignupScreenState extends State<SignupScreen> {
   // ----------------------------
 
   signInWIthGoogle() async {
-    User? user = await _authServices.signInWithGoogle();
+  User? user = await _authServices.signInWithGoogle();
 
-    if (user != null) {
-      // Check if the widget is still mounted before pushing a new route
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const BottomNavbar(),
-          ),
-        );
-      }
-    } else {
-      // If registration failed, show an error message (ensure the widget is mounted)
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registration failed')),
-        );
-      }
-    }
+  if (user != null) {
+
+  if (!mounted) return;
+    final recordsProvider = Provider.of<RecordsProvider>(context, listen: false);
+    await recordsProvider.initBoxForUser(user.uid);
+
+    if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const BottomNavbar(),
+        ),
+      );
+  
+  } else {
+    if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Registration failed')),
+      );
   }
+}
+
 
   // ----------------------------
   // Sigup with email/password Method 
   // ----------------------------
-  void signUpUser() async {
-    if (_formKey.currentState!.validate()) {
-      String name = nameController.text;
-      String email = emailController.text;
-      String password = passwordController.text;
+ void signUpUser() async {
+  if (_formKey.currentState!.validate()) {
+    String name = nameController.text.trim();
+    String email = emailController.text.trim();
+    String password = passwordController.text;
 
-      try {
-        User? user = await _authServices.registerWithEmailAndPassword(
-          name,
-          email,
-          password,
-        );
+    try {
+      User? user = await _authServices.registerWithEmailAndPassword(
+        name,
+        email,
+        password,
+      );
 
-        if (user != null) {
-          if (mounted) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const BottomNavbar(),
-              ),
-            );
-          }
-        } else {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Registration failed")),
-            );
-          }
+      if (user != null) {
+        if (!mounted) return;
+
+        // ✅ Initialize Hive box for this new user
+        final recordsProvider =
+            Provider.of<RecordsProvider>(context, listen: false);
+        await recordsProvider.initBoxForUser(user.uid);
+
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const BottomNavbar(),
+            ),
+          );
         }
-      } catch (e) {
+      } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('An error occurred: ${e.toString()}')),
+            const SnackBar(content: Text("Registration failed")),
           );
         }
       }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('An error occurred: ${e.toString()}')),
+        );
+      }
     }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

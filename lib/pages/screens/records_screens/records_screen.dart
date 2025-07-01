@@ -17,13 +17,13 @@ class RecordsScreen extends StatefulWidget {
 class _RecordsHomeScreenState extends State<RecordsScreen> {
   final TextEditingController _searchController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() {
-      Provider.of<RecordsProvider>(context, listen: false).loadLocalRecords();
-    });
-  }
+ @override
+void initState() {
+  super.initState();
+  Future.microtask(() {
+    Provider.of<RecordsProvider>(context, listen: false).loadLocalRecords();
+  });
+}
 
   @override
   void dispose() {
@@ -173,15 +173,15 @@ class _RecordsHomeScreenState extends State<RecordsScreen> {
             ),
             child: const Icon(
               Icons.folder_open_rounded,
-              size: 64,
+              size: 60,
               color: Color(0xFF64748B),
             ),
           ),
-          const SizedBox(height: 28),
+          const SizedBox(height: 20),
           const Text(
             "No Medical Records",
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 20,
               fontWeight: FontWeight.w700,
               color: Color(0xFF1E293B),
               letterSpacing: -0.5,
@@ -197,51 +197,7 @@ class _RecordsHomeScreenState extends State<RecordsScreen> {
             ),
           ),
           const SizedBox(height: 40),
-          Container(
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
-              ),
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF3B82F6).withOpacity(0.3),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AddRecordScreen(),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                foregroundColor: Colors.white,
-                shadowColor: Colors.transparent,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 28,
-                  vertical: 16,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-              ),
-              icon: const Icon(Icons.add_rounded, size: 20),
-              label: const Text(
-                "Add First Record",
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-          ),
+          
         ],
       ),
     );
@@ -351,7 +307,7 @@ class _RecordsHomeScreenState extends State<RecordsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            record.category,
+                            record.title,
                             style: const TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 16,
@@ -382,7 +338,7 @@ class _RecordsHomeScreenState extends State<RecordsScreen> {
                               ),
                             ),
                             child: Text(
-                              record.title,
+                              record.category,
                               style: const TextStyle(
                                 color: primaryColor,
                                 fontSize: 11,

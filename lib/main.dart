@@ -16,9 +16,7 @@ void main() async {
   await Hive.initFlutter();
   //register adapter
   Hive.registerAdapter(MedicalRecordAdapter());
-  //open box
-  await Hive.openBox('medical_records');
-
+  
   //initialize firebase
   await Firebase.initializeApp();
   
