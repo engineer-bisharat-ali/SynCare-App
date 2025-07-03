@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 part 'medical_records.g.dart';
 
 @HiveType(typeId: 0)
-class MedicalRecord {
+class MedicalRecord extends HiveObject {
   @HiveField(0)
   final String id;
 
@@ -20,10 +20,10 @@ class MedicalRecord {
   final String description;
 
   @HiveField(5)
-  final String filePath; //  Image ya PDF ka Local Path Store Karna
+  final String filePath;
 
   @HiveField(6)
-  final String fileType; //  "image" ya "pdf" store karne ke liye
+  final String fileType;
 
   MedicalRecord({
     required this.id,
@@ -35,7 +35,6 @@ class MedicalRecord {
     required this.fileType,
   });
 
-  //  Hive Ke Liye JSON Convert Karna
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -48,7 +47,6 @@ class MedicalRecord {
     };
   }
 
-  //  Firebase Se Data Convert Karna
   factory MedicalRecord.fromMap(Map<String, dynamic> map) {
     return MedicalRecord(
       id: map['id'],

@@ -1,9 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart';       // ← NEW
 import 'package:syncare/constants/colors.dart';
 import 'package:syncare/provider/records_provider.dart';
+import 'package:syncare/services/supabase_servises/supabase_storage_service.dart';
 import 'package:syncare/widgets/custom_app_bar.dart';
 
 class AddRecordScreen extends StatefulWidget {
@@ -20,7 +21,7 @@ class AddRecordScreenState extends State<AddRecordScreen> {
   String? _fileType;
   bool _isLoading = false;
 
-  // Dropdown options
+  // ───────────────────── Options ─────────────────────
   final List<String> _titleOptions = [
     'Blood Test Results',
     'X-Ray Report',
@@ -34,7 +35,7 @@ class AddRecordScreenState extends State<AddRecordScreen> {
     'Discharge Summary',
     'Lab Report',
     'Consultation Notes',
-    'Custom' // Option to add custom title
+    'Custom'
   ];
 
   final List<String> _categoryOptions = [
@@ -50,7 +51,7 @@ class AddRecordScreenState extends State<AddRecordScreen> {
     'Ophthalmology',
     'Dermatology',
     'General',
-    'Custom' // Option to add custom category
+    'Custom'
   ];
 
   String? _selectedTitle;
@@ -58,10 +59,10 @@ class AddRecordScreenState extends State<AddRecordScreen> {
   bool _isCustomTitle = false;
   bool _isCustomCategory = false;
   final TextEditingController _customTitleController = TextEditingController();
-  final TextEditingController _customCategoryController = TextEditingController();
+  final TextEditingController _customCategoryController =
+      TextEditingController();
 
-  // Professional colors
-  
+  // ───────────────────── UI colors ─────────────────────
   final Color _successGreen = const Color(0xFF27AE60);
   final Color _warningOrange = const Color(0xFFE67E22);
   final Color _errorRed = const Color(0xFFE74C3C);
@@ -70,6 +71,7 @@ class AddRecordScreenState extends State<AddRecordScreen> {
   final Color _textDark = const Color(0xFF2C3E50);
   final Color _textLight = const Color(0xFF7F8C8D);
 
+  /* ───────────────────── File picker ───────────────────── */
   Future<void> _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -84,39 +86,52 @@ class AddRecordScreenState extends State<AddRecordScreen> {
     }
   }
 
+  /* ───────────────────── Save record ───────────────────── */
   void _saveRecord() async {
-  if (_formKey.currentState!.validate() && _selectedFile != null) {
-    setState(() => _isLoading = true);
-    _formKey.currentState!.save();
+    if (_formKey.currentState!.validate() && _selectedFile != null) {
+      setState(() => _isLoading = true);
+      _formKey.currentState!.save();
 
-    final finalTitle = _isCustomTitle ? _customTitleController.text : _selectedTitle!;
-    final finalCategory = _isCustomCategory ? _customCategoryController.text : _selectedCategory!;
+      final finalTitle =
+          _isCustomTitle ? _customTitleController.text : _selectedTitle!;
+      final finalCategory =
+          _isCustomCategory ? _customCategoryController.text : _selectedCategory!;
 
-    await Future.delayed(const Duration(milliseconds: 500));
+      /* 📤 Upload to Supabase */
+      final bytes = await _selectedFile!.readAsBytes();
+      final fileName = _selectedFile!.path.split('/').last;
+      await SupabaseStorageService().upload(bytes, fileName);
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-   
-    Provider.of<RecordsProvider>(context, listen: false).addRecord(
-      finalCategory,
-      finalTitle,
-      _description,
-      _selectedFile!.path,
-      _fileType!,
-      DateTime.now(),
-    );
+      /* Local Hive save */
+      Provider.of<RecordsProvider>(context, listen: false).addRecord(
+        finalCategory,
+        finalTitle,
+        _description,
+        _selectedFile!.path,
+        _fileType!,
+      );
 
-    // ✅ Immediately reload updated records
-    Provider.of<RecordsProvider>(context, listen: false).loadLocalRecords();
+      Provider.of<RecordsProvider>(context, listen: false).loadLocalRecords();
 
-    setState(() => _isLoading = false);
-    _showSnackBar("Record Added Successfully", "Your medical record has been securely saved", _successGreen);
-    Navigator.pop(context);
-  } else {
-    _showSnackBar("Incomplete Information", "Please fill all required fields and attach a file", _warningOrange);
+      setState(() => _isLoading = false);
+      _showSnackBar(
+        "Record Added Successfully",
+        "Your medical record has been securely saved",
+        _successGreen,
+      );
+      Navigator.pop(context);
+    } else {
+      _showSnackBar(
+        "Incomplete Information",
+        "Please fill all required fields and attach a file",
+        _warningOrange,
+      );
+    }
   }
-}
 
+  /* ───────────────────── Cleanup ───────────────────── */
   @override
   void dispose() {
     _customTitleController.dispose();
@@ -124,6 +139,7 @@ class AddRecordScreenState extends State<AddRecordScreen> {
     super.dispose();
   }
 
+  /* ───────────────────── Snackbar helper ───────────────────── */
   void _showSnackBar(String title, String message, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -147,7 +163,8 @@ class AddRecordScreenState extends State<AddRecordScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+                  Text(title,
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
                   Text(message, style: const TextStyle(fontSize: 12)),
                 ],
               ),
@@ -156,73 +173,74 @@ class AddRecordScreenState extends State<AddRecordScreen> {
         ),
         backgroundColor: color,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
       ),
     );
   }
 
-  Widget _buildDropdownField({
-  required String label,
-  required List<String> options,
-  required String? selectedValue,
-  required void Function(String?) onChanged,
-  required IconData icon,
-}) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        "$label *",
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: _textDark,
-        ),
-      ),
-      const SizedBox(height: 8),
-      Container(
-        decoration: BoxDecoration(
-          color: _cardWhite,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: DropdownButtonFormField<String>(
-          value: selectedValue,
-          isExpanded: true, // 💡 Important: makes dropdown take full width
-          decoration: InputDecoration(
-            prefixIcon: Icon(icon, color: primaryColor),
-            border: InputBorder.none,
-            contentPadding: const EdgeInsets.all(16),
-          ),
-          hint: Text("Select $label"),
-          items: options.map((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Row(
-                mainAxisSize: MainAxisSize.min, // ✅ prevents unbounded issue
-                children: [
-                  const Icon(Icons.arrow_right, size: 18, color: primaryColor),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    fit: FlexFit.loose, // ✅ no expansion issue
-                    child: Text(
-                      value,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-          onChanged: onChanged,
-          validator: (value) => value == null ? "$label is required" : null,
-        ),
-      ),
-    ],
-  );
-}
+  /* ───────────────────── UI builders (unchanged) ───────────────────── */
 
+  Widget _buildDropdownField({
+    required String label,
+    required List<String> options,
+    required String? selectedValue,
+    required void Function(String?) onChanged,
+    required IconData icon,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "$label *",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: _textDark,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: _cardWhite,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade300),
+          ),
+          child: DropdownButtonFormField<String>(
+            value: selectedValue,
+            isExpanded: true,
+            decoration: InputDecoration(
+              prefixIcon: Icon(icon, color: primaryColor),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.all(16),
+            ),
+            hint: Text("Select $label"),
+            items: options.map((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.arrow_right,
+                        size: 18, color: primaryColor),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      fit: FlexFit.loose,
+                      child: Text(value, overflow: TextOverflow.ellipsis),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+            onChanged: onChanged,
+            validator: (value) =>
+                value == null ? "$label is required" : null,
+          ),
+        ),
+      ],
+    );
+  }
 
   Widget _buildCustomTextField({
     required String label,
@@ -258,7 +276,8 @@ class AddRecordScreenState extends State<AddRecordScreen> {
             ),
             contentPadding: const EdgeInsets.all(16),
           ),
-          validator: (value) => value!.isEmpty ? "Custom $label is required" : null,
+          validator: (value) =>
+              value!.isEmpty ? "Custom $label is required" : null,
         ),
       ],
     );
@@ -280,7 +299,8 @@ class AddRecordScreenState extends State<AddRecordScreen> {
             ),
             const Spacer(),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: _successGreen.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
@@ -310,14 +330,20 @@ class AddRecordScreenState extends State<AddRecordScreen> {
             width: double.infinity,
             height: 120,
             decoration: BoxDecoration(
-              color: _selectedFile != null ? primaryColor.withOpacity(0.05) : _cardWhite,
+              color: _selectedFile != null
+                  ? primaryColor.withOpacity(0.05)
+                  : _cardWhite,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: _selectedFile != null ? primaryColor : Colors.grey.shade300,
+                color: _selectedFile != null
+                    ? primaryColor
+                    : Colors.grey.shade300,
                 width: 2,
               ),
             ),
-            child: _selectedFile != null ? _buildFilePreview() : _buildUploadPlaceholder(),
+            child: _selectedFile != null
+                ? _buildFilePreview()
+                : _buildUploadPlaceholder(),
           ),
         ),
       ],
@@ -336,12 +362,16 @@ class AddRecordScreenState extends State<AddRecordScreen> {
               else
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.file(_selectedFile!, width: 60, height: 60, fit: BoxFit.cover),
+                  child: Image.file(_selectedFile!,
+                      width: 60, height: 60, fit: BoxFit.cover),
                 ),
               const SizedBox(height: 8),
               Text(
                 _selectedFile!.path.split('/').last,
-                style: const TextStyle(fontSize: 12, color: primaryColor, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                    fontSize: 12,
+                    color: primaryColor,
+                    fontWeight: FontWeight.w600),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -371,7 +401,10 @@ class AddRecordScreenState extends State<AddRecordScreen> {
         const SizedBox(height: 8),
         const Text(
           "Upload Medical File",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: primaryColor),
+          style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: primaryColor),
         ),
         const SizedBox(height: 4),
         Text(
@@ -382,6 +415,7 @@ class AddRecordScreenState extends State<AddRecordScreen> {
     );
   }
 
+  /* ───────────────────── Build ───────────────────── */
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -390,20 +424,22 @@ class AddRecordScreenState extends State<AddRecordScreen> {
 
     return Scaffold(
       backgroundColor: _backgroundGray,
-      appBar:CustomAppBar(title: "Add Medical Record",
-      onBack: () => Navigator.pop(context),
+      appBar: CustomAppBar(
+        title: "Add Medical Record",
+        onBack: () => Navigator.pop(context),
       ),
       resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
         padding: EdgeInsets.all(padding),
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: isTablet ? 600 : double.infinity),
+          constraints:
+              BoxConstraints(maxWidth: isTablet ? 600 : double.infinity),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header Card
+                /* Header card (unchanged) */
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -425,7 +461,8 @@ class AddRecordScreenState extends State<AddRecordScreen> {
                           color: primaryColor,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(Icons.medical_information, color: Colors.white, size: 24),
+                        child: const Icon(Icons.medical_information,
+                            color: Colors.white, size: 24),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -443,7 +480,8 @@ class AddRecordScreenState extends State<AddRecordScreen> {
                             const SizedBox(height: 4),
                             Text(
                               "Securely store your health information",
-                              style: TextStyle(fontSize: 14, color: _textLight),
+                              style:
+                                  TextStyle(fontSize: 14, color: _textLight),
                             ),
                           ],
                         ),
@@ -451,10 +489,9 @@ class AddRecordScreenState extends State<AddRecordScreen> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 24),
 
-                // Record Title Dropdown
+                /* Record Title dropdown */
                 _buildDropdownField(
                   label: "Record Title",
                   options: _titleOptions,
@@ -464,14 +501,10 @@ class AddRecordScreenState extends State<AddRecordScreen> {
                     setState(() {
                       _selectedTitle = value;
                       _isCustomTitle = value == 'Custom';
-                      if (!_isCustomTitle) {
-                        _customTitleController.clear();
-                      }
+                      if (!_isCustomTitle) _customTitleController.clear();
                     });
                   },
                 ),
-
-                // Custom Title Field (shows when Custom is selected)
                 if (_isCustomTitle) ...[
                   const SizedBox(height: 16),
                   _buildCustomTextField(
@@ -483,7 +516,7 @@ class AddRecordScreenState extends State<AddRecordScreen> {
 
                 const SizedBox(height: 20),
 
-                // Medical Category Dropdown
+                /* Medical Category dropdown */
                 _buildDropdownField(
                   label: "Medical Category",
                   options: _categoryOptions,
@@ -499,8 +532,6 @@ class AddRecordScreenState extends State<AddRecordScreen> {
                     });
                   },
                 ),
-
-                // Custom Category Field (shows when Custom is selected)
                 if (_isCustomCategory) ...[
                   const SizedBox(height: 16),
                   _buildCustomTextField(
@@ -512,7 +543,7 @@ class AddRecordScreenState extends State<AddRecordScreen> {
 
                 const SizedBox(height: 20),
 
-                // Description Field
+                /* Description */
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -528,23 +559,33 @@ class AddRecordScreenState extends State<AddRecordScreen> {
                     TextFormField(
                       maxLines: 4,
                       decoration: InputDecoration(
-                        hintText: "Provide details about this medical record...",
-                        prefixIcon: const Icon(Icons.description, color: primaryColor),
+                        hintText:
+                            "Provide details about this medical record...",
+                        prefixIcon:
+                            const Icon(Icons.description, color: primaryColor),
                         filled: true,
                         fillColor: _cardWhite,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
+                          borderSide:
+                              BorderSide(color: Colors.grey.shade300),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: primaryColor, width: 2),
+                          borderSide:
+                              const BorderSide(color: primaryColor, width: 2),
                         ),
                         contentPadding: const EdgeInsets.all(16),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) return "Description is required";
-                        if (value.trim().split(RegExp(r'\s+')).length < 10) {
+                        if (value == null || value.isEmpty) {
+                          return "Description is required";
+                        }
+                        if (value
+                                .trim()
+                                .split(RegExp(r'\s+'))
+                                .length <
+                            10) {
                           return "Please provide at least 10 words";
                         }
                         return null;
@@ -556,12 +597,12 @@ class AddRecordScreenState extends State<AddRecordScreen> {
 
                 const SizedBox(height: 24),
 
-                // File Upload
+                /* File Upload */
                 _buildFileUpload(),
 
                 const SizedBox(height: 32),
 
-                // Save Button
+                /* Save Button */
                 SizedBox(
                   width: double.infinity,
                   height: 56,
@@ -569,7 +610,8 @@ class AddRecordScreenState extends State<AddRecordScreen> {
                     onPressed: _isLoading ? null : _saveRecord,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryColor,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                     ),
                     child: _isLoading
                         ? const Row(
@@ -578,10 +620,13 @@ class AddRecordScreenState extends State<AddRecordScreen> {
                               SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                    color: Colors.white, strokeWidth: 2),
                               ),
                               SizedBox(width: 12),
-                              Text("Saving...", style: TextStyle(color: Colors.white, fontSize: 16)),
+                              Text("Saving...",
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 16)),
                             ],
                           )
                         : const Row(
@@ -589,15 +634,16 @@ class AddRecordScreenState extends State<AddRecordScreen> {
                             children: [
                               Icon(Icons.save, color: Colors.white),
                               SizedBox(width: 8),
-                              Text("Save Record", style: TextStyle(color: Colors.white, fontSize: 16)),
+                              Text("Save Record",
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 16)),
                             ],
                           ),
                   ),
                 ),
-
                 const SizedBox(height: 16),
 
-                // Security Notice
+                /* Security notice */
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -612,10 +658,9 @@ class AddRecordScreenState extends State<AddRecordScreen> {
                         child: Text(
                           "Your medical records are encrypted and HIPAA compliant",
                           style: TextStyle(
-                            fontSize: 13,
-                            color: _successGreen,
-                            fontWeight: FontWeight.w500,
-                          ),
+                              fontSize: 13,
+                              color: _successGreen,
+                              fontWeight: FontWeight.w500),
                         ),
                       ),
                     ],
@@ -628,4 +673,4 @@ class AddRecordScreenState extends State<AddRecordScreen> {
       ),
     );
   }
-  }   
+}

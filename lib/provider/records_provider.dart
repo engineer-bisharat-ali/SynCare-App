@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:syncare/models/medical_records.dart';
+import 'package:syncare/services/supabase_servises/supabase_storage_service.dart';
 
 class RecordsProvider extends ChangeNotifier {
   late Box recordsBox;
@@ -41,7 +42,6 @@ class RecordsProvider extends ChangeNotifier {
     String description,
     String filePath,
     String fileType,
-    DateTime selectedDate,
   ) {
     if (currentUserId == null) return;
 
@@ -63,6 +63,14 @@ class RecordsProvider extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+   //delete locally + Supabase
+  Future<void> removeRecordEverywhere(String recordId) async {
+    final rec = _records.firstWhere((r) => r.id == recordId);
+    await SupabaseStorageService()
+        .delete(rec.filePath.split('/').last);      // remove in cloud
+    removeRecord(recordId);                        // local remove
   }
 
   void removeRecord(String recordId) {

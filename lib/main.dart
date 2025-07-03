@@ -1,14 +1,13 @@
-// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:syncare/models/medical_records.dart';
 import 'package:provider/provider.dart';
-// signup_screen.dart';
-import 'package:syncare/pages/intro_screens/splash_screen.dart';
+import 'package:syncare/pages/auths/auth_gate.dart';
 import 'package:syncare/provider/records_provider.dart';
 import 'package:syncare/provider/symptom_provider.dart';
-// import 'package:syncare/pages/screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,6 +18,14 @@ void main() async {
   
   //initialize firebase
   await Firebase.initializeApp();
+
+  //load environment variables
+  await dotenv.load();
+  //initialize supabase
+   await Supabase.initialize(
+   url: dotenv.env['SUPABASE_URL']!,        
+    anonKey: dotenv.env['SUPABASE_ANON_KEY']!, 
+  );
   
   runApp(
     MultiProvider(
@@ -43,7 +50,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const SplashScreen(),
+      home: const AuthGate(),
     );
   }
 }

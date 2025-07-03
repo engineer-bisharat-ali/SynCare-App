@@ -37,6 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   flutter_svg: ^2.0.16
   cloud_firestore: ^5.4.4
+  firebase_storage: ^12.4.8
   firebase_core: ^3.6.0
   firebase_auth: ^5.3.1
   google_sign_in: ^6.2.1
@@ -55,6 +56,9 @@ dependencies:
   geolocator: ^9.0.2
   geocoding: ^2.0.5
   http: ^1.2.1
+  supabase_flutter: ^2.9.1
+  path: ^1.9.0
+  flutter_dotenv: ^5.2.1
 
 
 
@@ -87,6 +91,7 @@ flutter:
   assets:
     - Assets/images/
     - Assets/icons/
+    - .env
   
 
   # An image asset can refer to one or more resolution-specific "variants", see

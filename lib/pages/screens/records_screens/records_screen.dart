@@ -17,14 +17,6 @@ class RecordsScreen extends StatefulWidget {
 class _RecordsHomeScreenState extends State<RecordsScreen> {
   final TextEditingController _searchController = TextEditingController();
 
- @override
-void initState() {
-  super.initState();
-  Future.microtask(() {
-    Provider.of<RecordsProvider>(context, listen: false).loadLocalRecords();
-  });
-}
-
   @override
   void dispose() {
     _searchController.dispose();
@@ -39,11 +31,9 @@ void initState() {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: const CustomAppBar(title: "Medical Records"),
       body: CustomScrollView(
-        physics: const BouncingScrollPhysics(), // Improved scroll physics
+        physics: const BouncingScrollPhysics(),
         slivers: [
-          SliverToBoxAdapter(
-            child: _buildSearchSection(),
-          ),
+          SliverToBoxAdapter(child: _buildSearchSection()),
           _buildRecordsList(recordsProvider),
         ],
       ),
@@ -51,6 +41,7 @@ void initState() {
     );
   }
 
+  /* ───────────────────── Search bar ───────────────────── */
   Widget _buildSearchSection() {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
@@ -83,19 +74,13 @@ void initState() {
             ),
             prefixIcon: Container(
               padding: const EdgeInsets.all(12),
-              child: const Icon(
-                Icons.search_rounded,
-                color: Color(0xFF64748B),
-                size: 22,
-              ),
+              child: const Icon(Icons.search_rounded,
+                  color: Color(0xFF64748B), size: 22),
             ),
             suffixIcon: _searchController.text.isNotEmpty
                 ? IconButton(
-                    icon: const Icon(
-                      Icons.close_rounded,
-                      color: Color(0xFF94A3B8),
-                      size: 20,
-                    ),
+                    icon: const Icon(Icons.close_rounded,
+                        color: Color(0xFF94A3B8), size: 20),
                     onPressed: () {
                       _searchController.clear();
                       Provider.of<RecordsProvider>(context, listen: false)
@@ -103,18 +88,14 @@ void initState() {
                     },
                   )
                 : null,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 18,
-            ),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
             border: InputBorder.none,
             enabledBorder: InputBorder.none,
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(
-                color: Color(0xFF3B82F6),
-                width: 2,
-              ),
+              borderSide:
+                  const BorderSide(color: Color(0xFF3B82F6), width: 2),
             ),
           ),
           style: const TextStyle(
@@ -132,20 +113,17 @@ void initState() {
     );
   }
 
+  /* ───────────────────── List / Empty UI ───────────────────── */
   Widget _buildRecordsList(RecordsProvider recordsProvider) {
     if (recordsProvider.records.isEmpty) {
-      return SliverFillRemaining(
-        child: _buildEmptyState(),
-      );
+      return SliverFillRemaining(child: _buildEmptyState());
     }
 
     return SliverPadding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 120), // Added bottom padding for navbar
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 120),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            return _buildRecordCard(recordsProvider, index);
-          },
+          (context, index) => _buildRecordCard(recordsProvider, index),
           childCount: recordsProvider.records.length,
         ),
       ),
@@ -171,11 +149,8 @@ void initState() {
                 ),
               ],
             ),
-            child: const Icon(
-              Icons.folder_open_rounded,
-              size: 60,
-              color: Color(0xFF64748B),
-            ),
+            child: const Icon(Icons.folder_open_rounded,
+                size: 60, color: Color(0xFF64748B)),
           ),
           const SizedBox(height: 20),
           const Text(
@@ -197,178 +172,168 @@ void initState() {
             ),
           ),
           const SizedBox(height: 40),
-          
         ],
       ),
     );
   }
 
-   Widget _buildRecordCard(RecordsProvider recordsProvider, int index) {
-    var record = recordsProvider.records[index];
+  /* ───────────────────── Single card with Dismissible ───────────────────── */
+  Widget _buildRecordCard(RecordsProvider recordsProvider, int index) {
+    final record = recordsProvider.records[index];
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Dismissible(
         key: Key(record.id),
         direction: DismissDirection.endToStart,
-        background: Container(
-          alignment: Alignment.centerRight,
-          padding: const EdgeInsets.symmetric(horizontal: 28),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
-            ),
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFFEF4444).withOpacity(0.3),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
+        background: _buildDeleteBackground(),
+        onDismissed: (direction) async {
+          await recordsProvider.removeRecordEverywhere(record.id); // NEW
+          ScaffoldMessenger.of(context).showSnackBar(_deleteSnack());
+        },
+        child: _buildRecordTile(record),
+      ),
+    );
+  }
+
+  Widget _buildDeleteBackground() {
+    return Container(
+      alignment: Alignment.centerRight,
+      padding: const EdgeInsets.symmetric(horizontal: 28),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFEF4444).withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-          child: const Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.delete_rounded,
-                color: Colors.white,
-                size: 28,
-              ),
-              SizedBox(height: 4),
-              Text(
-                "Delete",
-                style: TextStyle(
+        ],
+      ),
+      child: const Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.delete_rounded, color: Colors.white, size: 28),
+          SizedBox(height: 4),
+          Text("Delete",
+              style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
-                  fontSize: 12,
-                ),
-              ),
-            ],
+                  fontSize: 12)),
+        ],
+      ),
+    );
+  }
+
+  SnackBar _deleteSnack() {
+    return SnackBar(
+      content: const Row(
+        children: [
+          Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+          SizedBox(width: 12),
+          Text("Record deleted successfully",
+              style: TextStyle(fontWeight: FontWeight.w500)),
+        ],
+      ),
+      backgroundColor: const Color(0xFF059669),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.all(16),
+    );
+  }
+
+  Widget _buildRecordTile(record) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF64748B).withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
           ),
-        ),
-        onDismissed: (direction) {
-          recordsProvider.removeRecord(record.id);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Row(
-                children: [
-                  Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
-                  SizedBox(width: 12),
-                  Text(
-                    "Record deleted successfully",
-                    style: TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                ],
-              ),
-              backgroundColor: const Color(0xFF059669),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              margin: const EdgeInsets.all(16),
-            ),
-          );
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF64748B).withOpacity(0.04),
-                blurRadius: 12,
-                offset: const Offset(0, 2),
-              ),
-              BoxShadow(
-                color: const Color(0xFF64748B).withOpacity(0.02),
-                blurRadius: 4,
-                offset: const Offset(0, 1),
-              ),
-            ],
+          BoxShadow(
+            color: const Color(0xFF64748B).withOpacity(0.02),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
           ),
-          child: Material(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(18),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(18),
-              splashColor: const Color(0xFF3B82F6).withOpacity(0.08),
-              highlightColor: const Color(0xFF3B82F6).withOpacity(0.04),
-              onTap: () => _navigateToDetails(record),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    _buildRecordThumbnail(record),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            record.title,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                              color: Color(0xFF1E293B),
-                              letterSpacing: -0.1,
-                              height: 1.3,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 10),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 5,
-                            ),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  primaryColor.withOpacity(0.08),
-                                  primaryColor.withOpacity(0.12),
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: primaryColor.withOpacity(0.15),
-                                width: 1,
-                              ),
-                            ),
-                            child: Text(
-                              record.category,
-                              style: const TextStyle(
-                                color: primaryColor,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(18),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          splashColor: const Color(0xFF3B82F6).withOpacity(0.08),
+          highlightColor: const Color(0xFF3B82F6).withOpacity(0.04),
+          onTap: () => _navigateToDetails(record),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                _buildRecordThumbnail(record),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        record.title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          color: Color(0xFF1E293B),
+                          letterSpacing: -0.1,
+                          height: 1.3,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: const Color(0xFFE2E8F0),
-                          width: 1,
+                      const SizedBox(height: 10),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              primaryColor.withOpacity(0.08),
+                              primaryColor.withOpacity(0.12),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                              color: primaryColor.withOpacity(0.15), width: 1),
+                        ),
+                        child: Text(
+                          record.category,
+                          style: const TextStyle(
+                            color: primaryColor,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                      child: const Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        size: 14,
-                        color: Color(0xFF64748B),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(10),
+                    border:
+                        Border.all(color: const Color(0xFFE2E8F0), width: 1),
+                  ),
+                  child: const Icon(Icons.arrow_forward_ios_rounded,
+                      size: 14, color: Color(0xFF64748B)),
+                ),
+              ],
             ),
           ),
         ),
@@ -394,10 +359,7 @@ void initState() {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(10.5),
         child: record.fileType == "image"
-            ? Image.file(
-                File(record.filePath),
-                fit: BoxFit.cover,
-              )
+            ? Image.file(File(record.filePath), fit: BoxFit.cover)
             : Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
@@ -406,16 +368,14 @@ void initState() {
                     end: Alignment.bottomRight,
                   ),
                 ),
-                child: const Icon(
-                  Icons.picture_as_pdf_rounded,
-                  color: Color(0xFFDC2626),
-                  size: 24,
-                ),
+                child: const Icon(Icons.picture_as_pdf_rounded,
+                    color: Color(0xFFDC2626), size: 24),
               ),
       ),
     );
   }
 
+  /* ───────────────────── FAB ───────────────────── */
   Widget _buildFloatingActionButton() {
     return Container(
       margin: const EdgeInsets.only(bottom: 90, right: 5),
@@ -443,21 +403,13 @@ void initState() {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => const AddRecordScreen(),
-            ),
+            MaterialPageRoute(builder: (_) => const AddRecordScreen()),
           );
         },
         backgroundColor: Colors.transparent,
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: const Icon(
-          Icons.add_rounded,
-          size: 28,
-          color: Colors.white,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: const Icon(Icons.add_rounded, size: 28, color: Colors.white),
       ),
     );
   }
@@ -465,9 +417,7 @@ void initState() {
   void _navigateToDetails(record) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => RecordDetailsScreen(record: record),
-      ),
+      MaterialPageRoute(builder: (_) => RecordDetailsScreen(record: record)),
     );
   }
 }

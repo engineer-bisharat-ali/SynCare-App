@@ -1,14 +1,6 @@
-import 'dart:async';
 import 'dart:math' as math;
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:syncare/pages/auths/login_screen.dart';
-import 'package:syncare/pages/helper_classess/onboarding_helper.dart';
-import 'package:syncare/pages/intro_screens/onboarding_screen.dart';
-import 'package:syncare/services/api_services/symptoms_api_service.dart';
-import 'package:syncare/widgets/bottom_navbar.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -20,159 +12,39 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
   static const primaryColor = Color(0x9C00BCD3);
-  
-  late AnimationController _logoController;
-  late AnimationController _backgroundController;
-  late AnimationController _pulseController;
-  late AnimationController _heartbeatController;
-  late AnimationController _dnaController;
-  
-  late Animation<double> _logoScaleAnimation;
-  late Animation<double> _logoFadeAnimation;
-  late Animation<double> _backgroundAnimation;
-  late Animation<double> _pulseAnimation;
-  late Animation<double> _heartbeatAnimation;
-  late Animation<double> _dnaAnimation;
+
+  late final AnimationController _logoController =
+      AnimationController(vsync: this, duration: const Duration(milliseconds: 2000));
+  late final AnimationController _backgroundController =
+      AnimationController(vsync: this, duration: const Duration(seconds: 10));
+  late final AnimationController _pulseController =
+      AnimationController(vsync: this, duration: const Duration(milliseconds: 2000));
+  late final AnimationController _heartbeatController =
+      AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
+  late final AnimationController _dnaController =
+      AnimationController(vsync: this, duration: const Duration(seconds: 8));
+
+  late final Animation<double> _logoScaleAnimation = Tween(begin: 0.0, end: 1.0)
+      .animate(CurvedAnimation(parent: _logoController, curve: Curves.elasticOut));
+  late final Animation<double> _logoFadeAnimation = Tween(begin: 0.0, end: 1.0)
+      .animate(CurvedAnimation(parent: _logoController, curve: const Interval(0, .8, curve: Curves.easeInOut)));
+  late final Animation<double> _backgroundAnimation = Tween(begin: 0.0, end: 1.0)
+      .animate(CurvedAnimation(parent: _backgroundController, curve: Curves.linear));
+  late final Animation<double> _pulseAnimation =
+      Tween(begin: .9, end: 1.1).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
+  late final Animation<double> _heartbeatAnimation =
+      Tween(begin: 1.0, end: 1.15).animate(CurvedAnimation(parent: _heartbeatController, curve: Curves.easeInOut));
+  late final Animation<double> _dnaAnimation = Tween(begin: 0.0, end: 2 * math.pi)
+      .animate(CurvedAnimation(parent: _dnaController, curve: Curves.linear));
 
   @override
   void initState() {
     super.initState();
-    
-    // Initialize animation controllers
-    _logoController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
-      vsync: this,
-    );
-    
-    _backgroundController = AnimationController(
-      duration: const Duration(seconds: 10),
-      vsync: this,
-    );
-    
-    _pulseController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
-      vsync: this,
-    );
-    
-    _heartbeatController = AnimationController(
-      duration: const Duration(milliseconds: 1200),
-      vsync: this,
-    );
-    
-    _dnaController = AnimationController(
-      duration: const Duration(seconds: 8),
-      vsync: this,
-    );
-
-    // Initialize animations
-    _logoScaleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _logoController,
-      curve: Curves.elasticOut,
-    ));
-
-    _logoFadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _logoController,
-      curve: const Interval(0.0, 0.8, curve: Curves.easeInOut),
-    ));
-
-    _backgroundAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _backgroundController,
-      curve: Curves.linear,
-    ));
-
-    _pulseAnimation = Tween<double>(
-      begin: 0.9,
-      end: 1.1,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
-
-    _heartbeatAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.15,
-    ).animate(CurvedAnimation(
-      parent: _heartbeatController,
-      curve: Curves.easeInOut,
-    ));
-
-    _dnaAnimation = Tween<double>(
-      begin: 0.0,
-      end: 2 * math.pi,
-    ).animate(CurvedAnimation(
-      parent: _dnaController,
-      curve: Curves.linear,
-    ));
-
-    // Start animations
-    _startAnimations();
-    _navigateAfterDelay();
-    SymptomsApiService.predictDisease([
-      'itching',
-      'skin_rash',
-      'nodal_skin_eruptions',
-      'headache',
-      'fatigue',
-      'back_pain',
-      'cramps'
-    ]);
-  }
-
-  void _startAnimations() {
     _logoController.forward();
     _backgroundController.repeat();
     _pulseController.repeat(reverse: true);
     _heartbeatController.repeat(reverse: true);
     _dnaController.repeat();
-  }
-
-  void _navigateAfterDelay() async {
-    // Add a delay to show the splash screen
-    await Future.delayed(const Duration(seconds: 8));
-    if (!mounted) return;
-
-    // await FirebaseAuth.instance.signOut();
-
-    bool isOnboardingCompleted = await OnboardingHelper.isOnboardingCompleted();
-    User? user = FirebaseAuth.instance.currentUser;
-
-    //for ensure the value to validate
-    print("Onboarding Completed: $isOnboardingCompleted"); // 🔍 Debug line
-    print("User: $user");
-
-    if (user != null) {
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const BottomNavbar()),
-        );
-      }
-    } else {
-      if (isOnboardingCompleted) {
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const LoginScreen()),
-          );
-        }
-      } else {
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const OnboardingScreen()),
-          );
-        }
-      }
-    }
   }
 
   @override
@@ -187,75 +59,55 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+    final w = MediaQuery.of(context).size.width;
+    final h = MediaQuery.of(context).size.height;
 
     return Scaffold(
       body: Stack(
         children: [
-          // Healthcare gradient background
+          // gradient bg
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFFE8F5E8), // Light mint green
-                  Color(0xFFE1F5FE), // Light cyan
-                  Color(0xFFF3E5F5), // Light purple
-                ],
+                begin: Alignment.topLeft, end: Alignment.bottomRight,
+                colors: [Color(0xFFE8F5E8), Color(0xFFE1F5FE), Color(0xFFF3E5F5)],
               ),
             ),
           ),
 
-          // Animated medical pattern overlay
+          // animated patterns
           AnimatedBuilder(
             animation: _backgroundAnimation,
-            builder: (context, child) {
-              return CustomPaint(
-                painter: MedicalPatternPainter(
-                  _backgroundAnimation.value,
-                  primaryColor,
-                ),
-                size: Size(screenWidth, screenHeight),
-              );
-            },
+            builder: (_, __) => CustomPaint(
+              painter: _MedicalPatternPainter(_backgroundAnimation.value, primaryColor),
+              size: Size(w, h),
+            ),
           ),
 
-          // DNA Helix Animation
+          // dna helix
           AnimatedBuilder(
             animation: _dnaAnimation,
-            builder: (context, child) {
-              return CustomPaint(
-                painter: DNAHelixPainter(
-                  _dnaAnimation.value,
-                  primaryColor,
-                ),
-                size: Size(screenWidth, screenHeight),
-              );
-            },
+            builder: (_, __) => CustomPaint(
+              painter: _DNAHelixPainter(_dnaAnimation.value, primaryColor),
+              size: Size(w, h),
+            ),
           ),
 
-          // Floating medical particles
-          ...List.generate(15, (index) {
+          // floating emojis
+          ...List.generate(15, (i) {
             return AnimatedBuilder(
               animation: _backgroundAnimation,
-              builder: (context, child) {
-                final offset = _backgroundAnimation.value * 2 * math.pi;
+              builder: (_, __) {
+                final off = _backgroundAnimation.value * 2 * math.pi;
                 final icons = ['💊', '🩺', '❤️', '🧬', '⚕️'];
                 return Positioned(
-                  left: screenWidth * 0.1 + 
-                      (screenWidth * 0.8 * math.sin(offset + index * 0.4)),
-                  top: screenHeight * 0.15 + 
-                      (screenHeight * 0.7 * math.cos(offset + index * 0.3)),
+                  left: w * .1 + (w * .8 * math.sin(off + i * .4)),
+                  top: h * .15 + (h * .7 * math.cos(off + i * .3)),
                   child: Opacity(
-                    opacity: 0.3,
+                    opacity: .3,
                     child: Transform.scale(
-                      scale: 0.8 + 0.2 * math.sin(offset + index),
-                      child: Text(
-                        icons[index % icons.length],
-                        style: const TextStyle(fontSize: 20),
-                      ),
+                      scale: .8 + .2 * math.sin(off + i),
+                      child: Text(icons[i % icons.length], style: const TextStyle(fontSize: 20)),
                     ),
                   ),
                 );
@@ -263,16 +115,12 @@ class _SplashScreenState extends State<SplashScreen>
             );
           }),
 
-          // Main logo section
+          // logo + pulse
           Center(
             child: AnimatedBuilder(
-              animation: Listenable.merge([
-                _logoScaleAnimation,
-                _logoFadeAnimation,
-                _pulseAnimation,
-                _heartbeatAnimation,
-              ]),
-              builder: (context, child) {
+              animation: Listenable.merge(
+                  [_logoScaleAnimation, _logoFadeAnimation, _pulseAnimation, _heartbeatAnimation]),
+              builder: (_, __) {
                 return Transform.scale(
                   scale: _logoScaleAnimation.value * _pulseAnimation.value,
                   child: Opacity(
@@ -281,67 +129,42 @@ class _SplashScreenState extends State<SplashScreen>
                       padding: const EdgeInsets.all(50),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [
-                            primaryColor.withOpacity(0.1),
-                            primaryColor.withOpacity(0.05),
-                            Colors.transparent,
-                          ],
-                        ),
+                        gradient: RadialGradient(colors: [
+                          primaryColor.withOpacity(.1),
+                          primaryColor.withOpacity(.05),
+                          Colors.transparent
+                        ]),
                         boxShadow: [
-                          BoxShadow(
-                            color: primaryColor.withOpacity(0.2),
-                            blurRadius: 40,
-                            spreadRadius: 10,
-                          ),
-                          BoxShadow(
-                            color: Colors.white.withOpacity(0.8),
-                            blurRadius: 20,
-                            spreadRadius: 5,
-                          ),
+                          BoxShadow(color: primaryColor.withOpacity(.2), blurRadius: 40, spreadRadius: 10),
+                          BoxShadow(color: Colors.white.withOpacity(.8), blurRadius: 20, spreadRadius: 5),
                         ],
                       ),
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                          // Heartbeat pulse rings
                           Transform.scale(
                             scale: _heartbeatAnimation.value,
                             child: Container(
-                              height: screenWidth * 0.45,
-                              width: screenWidth * 0.45,
+                              height: w * .45,
+                              width: w * .45,
                               decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: primaryColor.withOpacity(0.3),
-                                  width: 2,
-                                ),
-                              ),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: primaryColor.withOpacity(.3), width: 2)),
                             ),
                           ),
-                          
-                          // Medical cross background
                           Container(
-                            height: screenWidth * 0.35,
-                            width: screenWidth * 0.35,
+                            height: w * .35,
+                            width: w * .35,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.white.withOpacity(0.9),
-                              border: Border.all(
-                                color: primaryColor.withOpacity(0.2),
-                                width: 3,
-                              ),
+                              color: Colors.white.withOpacity(.9),
+                              border: Border.all(color: primaryColor.withOpacity(.2), width: 3),
                             ),
                           ),
-                          
-                          // Logo
                           SizedBox(
-                            height: screenWidth * 0.35,
-                            width: screenWidth * 0.35,
-                            child: SvgPicture.asset(
-                              "Assets/icons/ic-SynCare-logo.svg",
-                              
-                            ),
+                            height: w * .35,
+                            width: w * .35,
+                            child: SvgPicture.asset('Assets/icons/ic-SynCare-logo.svg'),
                           ),
                         ],
                       ),
@@ -352,64 +175,38 @@ class _SplashScreenState extends State<SplashScreen>
             ),
           ),
 
-          // Health-themed loading section
+          // loading caption & indicator
           Positioned(
             bottom: 100,
             left: 0,
             right: 0,
             child: AnimatedBuilder(
               animation: _logoFadeAnimation,
-              builder: (context, child) {
+              builder: (_, __) {
                 return Opacity(
                   opacity: _logoFadeAnimation.value,
                   child: Column(
                     children: [
-                      // Custom health-themed progress indicator
                       SizedBox(
-                        width: 60,
-                        height: 60,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            SizedBox(
-                              width: 50,
-                              height: 50,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 4,
-                                valueColor: const AlwaysStoppedAnimation<Color>(
-                                  primaryColor,
-                                ),
-                                backgroundColor: primaryColor.withOpacity(0.2),
-                              ),
+                        width: 60, height: 60,
+                        child: Stack(alignment: Alignment.center, children: [
+                          SizedBox(
+                            width: 50, height: 50,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 4,
+                              valueColor: const AlwaysStoppedAnimation(primaryColor),
+                              backgroundColor: primaryColor.withOpacity(.2),
                             ),
-                            const Icon(
-                              Icons.favorite,
-                              color: primaryColor,
-                              size: 20,
-                            ),
-                          ],
-                        ),
+                          ),
+                          const Icon(Icons.favorite, color: primaryColor, size: 20),
+                        ]),
                       ),
                       const SizedBox(height: 24),
-                      Text(
-                        'Caring for Your Health...',
-                        style: TextStyle(
-                          color: primaryColor.withOpacity(0.8),
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
+                      Text('Caring for Your Health…',
+                          style: TextStyle(color: primaryColor.withOpacity(.8), fontSize: 18, fontWeight: FontWeight.w500)),
                       const SizedBox(height: 8),
-                      Text(
-                        'SynCare • Healthcare Redefined',
-                        style: TextStyle(
-                          color: primaryColor.withOpacity(0.6),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w300,
-                          letterSpacing: 1.0,
-                        ),
-                      ),
+                      Text('SynCare • Healthcare Redefined',
+                          style: TextStyle(color: primaryColor.withOpacity(.6), fontSize: 14, fontWeight: FontWeight.w300)),
                     ],
                   ),
                 );
@@ -417,24 +214,16 @@ class _SplashScreenState extends State<SplashScreen>
             ),
           ),
 
-          // Health stats visualization
+          // mini bar‐chart deco
           Positioned(
-            top: 80,
-            right: 30,
+            top: 80, right: 30,
             child: AnimatedBuilder(
               animation: _backgroundAnimation,
-              builder: (context, child) {
-                return Opacity(
-                  opacity: 0.3,
-                  child: CustomPaint(
-                    painter: HealthStatsPainter(
-                      _backgroundAnimation.value,
-                      primaryColor,
-                    ),
-                    size: const Size(100, 80),
-                  ),
-                );
-              },
+              builder: (_, __) => Opacity(
+                opacity: .3,
+                child:
+                    CustomPaint(painter: _HealthStatsPainter(_backgroundAnimation.value, primaryColor), size: const Size(100, 80)),
+              ),
             ),
           ),
         ],
@@ -443,64 +232,42 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-class MedicalPatternPainter extends CustomPainter {
-  final double animationValue;
-  final Color primaryColor;
+/* ─────────────────────────── painters (unchanged) ─────────────────────────── */
 
-  MedicalPatternPainter(this.animationValue, this.primaryColor);
+class _MedicalPatternPainter extends CustomPainter {
+  final double t;
+  final Color c;
+  _MedicalPatternPainter(this.t, this.c);
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = primaryColor.withOpacity(0.1)
-      ..strokeWidth = 1.5
-      ..style = PaintingStyle.stroke;
-
-    // Draw medical cross patterns
-    for (int i = 0; i < 4; i++) {
-      for (int j = 0; j < 3; j++) {
-        final centerX = (size.width / 4) * (i + 0.5);
-        final centerY = (size.height / 3) * (j + 0.5);
-        final sizeCross = 20 + 5 * math.sin(animationValue * 2 * math.pi + i + j);
-        
-        // Draw cross
-        canvas.drawLine(
-          Offset(centerX - sizeCross, centerY),
-          Offset(centerX + sizeCross, centerY),
-          paint,
-        );
-        canvas.drawLine(
-          Offset(centerX, centerY - sizeCross),
-          Offset(centerX, centerY + sizeCross),
-          paint,
-        );
+    final p = Paint()..color = c.withOpacity(.1)..strokeWidth = 1.5..style = PaintingStyle.stroke;
+    for (var i = 0; i < 4; ++i) {
+      for (var j = 0; j < 3; ++j) {
+        final cx = size.width / 4 * (i + .5);
+        final cy = size.height / 3 * (j + .5);
+        final s = 20 + 5 * math.sin(t * 2 * math.pi + i + j);
+        canvas.drawLine(Offset(cx - s, cy), Offset(cx + s, cy), p);
+        canvas.drawLine(Offset(cx, cy - s), Offset(cx, cy + s), p);
       }
     }
 
-    // Draw EKG/heartbeat pattern
-    paint.strokeWidth = 2;
-    paint.color = primaryColor.withOpacity(0.15);
-    
-    final path = Path();
-    final heartbeatPattern = [0, 0.2, 0.8, -0.5, 1.2, -0.8, 0.3, 0];
-    
-    for (int line = 0; line < 3; line++) {
-      final y = size.height * (0.2 + 0.3 * line);
-      path.reset();
-      
-      for (int i = 0; i < size.width ~/ 20; i++) {
-        final x = i * 20.0 + (animationValue * 40) % 40;
-        final patternIndex = i % heartbeatPattern.length;
-        final heartY = y + heartbeatPattern[patternIndex] * 30;
-        
+    p..strokeWidth = 2..color = c.withOpacity(.15);
+    const pat = [0, .2, .8, -.5, 1.2, -.8, .3, 0];
+    for (var row = 0; row < 3; ++row) {
+      final y0 = size.height * (.2 + .3 * row);
+      final path = Path();
+      for (var i = 0; i < size.width ~/ 20; ++i) {
+        final x = i * 20 + (t * 40) % 40;
+        final idx = i % pat.length;
+        final y = y0 + pat[idx] * 30;
         if (i == 0) {
-          path.moveTo(x, heartY);
+          path.moveTo(x, y);
         } else {
-          path.lineTo(x, heartY);
+          path.lineTo(x, y);
         }
       }
-      
-      canvas.drawPath(path, paint);
+      canvas.drawPath(path, p);
     }
   }
 
@@ -508,84 +275,49 @@ class MedicalPatternPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
-class DNAHelixPainter extends CustomPainter {
-  final double animationValue;
-  final Color primaryColor;
-
-  DNAHelixPainter(this.animationValue, this.primaryColor);
+class _DNAHelixPainter extends CustomPainter {
+  final double t;
+  final Color c;
+  _DNAHelixPainter(this.t, this.c);
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = primaryColor.withOpacity(0.2)
-      ..strokeWidth = 3
-      ..style = PaintingStyle.stroke;
-
-    // Draw DNA helix on the left side
-    final path1 = Path();
-    final path2 = Path();
-    
-    for (int i = 0; i < 50; i++) {
-      final progress = i / 50.0;
-      final x1 = 50 + 30 * math.sin(progress * 4 * math.pi + animationValue);
-      final x2 = 50 - 30 * math.sin(progress * 4 * math.pi + animationValue);
-      final y = size.height * progress;
-      
+    final p = Paint()..color = c.withOpacity(.2)..strokeWidth = 3..style = PaintingStyle.stroke;
+    final p2 = Paint()..color = c.withOpacity(.1)..strokeWidth = 1;
+    final path1 = Path(), path2 = Path();
+    for (var i = 0; i < 50; ++i) {
+      final prog = i / 50;
+      final x1 = 50 + 30 * math.sin(prog * 4 * math.pi + t);
+      final x2 = 50 - 30 * math.sin(prog * 4 * math.pi + t);
+      final y = size.height * prog;
       if (i == 0) {
-        path1.moveTo(x1, y);
-        path2.moveTo(x2, y);
+        path1.moveTo(x1, y); path2.moveTo(x2, y);
       } else {
-        path1.lineTo(x1, y);
-        path2.lineTo(x2, y);
+        path1.lineTo(x1, y); path2.lineTo(x2, y);
       }
-      
-      // Draw connecting lines
-      if (i % 5 == 0) {
-        canvas.drawLine(
-          Offset(x1, y),
-          Offset(x2, y),
-          Paint()
-            ..color = primaryColor.withOpacity(0.1)
-            ..strokeWidth = 1,
-        );
-      }
+      if (i % 5 == 0) canvas.drawLine(Offset(x1, y), Offset(x2, y), p2);
     }
-    
-    canvas.drawPath(path1, paint);
-    canvas.drawPath(path2, paint);
+    canvas.drawPath(path1, p); canvas.drawPath(path2, p);
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
-class HealthStatsPainter extends CustomPainter {
-  final double animationValue;
-  final Color primaryColor;
-
-  HealthStatsPainter(this.animationValue, this.primaryColor);
+class _HealthStatsPainter extends CustomPainter {
+  final double t;
+  final Color c;
+  _HealthStatsPainter(this.t, this.c);
 
   @override
   void paint(Canvas canvas, Size size) {
-
-    // Draw animated bar chart representing health stats
-    final bars = [0.6, 0.8, 0.4, 0.9, 0.7];
-    final barWidth = size.width / bars.length;
-    
-    for (int i = 0; i < bars.length; i++) {
-      final animatedHeight = size.height * bars[i] * 
-          (0.5 + 0.5 * math.sin(animationValue * 2 * math.pi + i * 0.5));
-      
+    final bars = [.6, .8, .4, .9, .7];
+    final w = size.width / bars.length;
+    for (var i = 0; i < bars.length; ++i) {
+      final h = size.height * bars[i] * (.5 + .5 * math.sin(t * 2 * math.pi + i * .5));
       canvas.drawRect(
-        Rect.fromLTWH(
-          i * barWidth + 5,
-          size.height - animatedHeight,
-          barWidth - 10,
-          animatedHeight,
-        ),
-        Paint()
-          ..color = primaryColor.withOpacity(0.3)
-          ..style = PaintingStyle.fill,
+        Rect.fromLTWH(i * w + 5, size.height - h, w - 10, h),
+        Paint()..color = c.withOpacity(.3)..style = PaintingStyle.fill,
       );
     }
   }
