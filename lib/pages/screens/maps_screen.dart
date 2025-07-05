@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:syncare/constants/colors.dart';
+import 'package:syncare/services/api_services/maps_service.dart'; // OverpassService
 
 class MapsScreen extends StatefulWidget {
   const MapsScreen({super.key});
@@ -12,140 +13,153 @@ class MapsScreen extends StatefulWidget {
 }
 
 class _MapsScreenState extends State<MapsScreen> {
-  late GoogleMapController mapController;
-  LatLng _currentPosition = const LatLng(24.8607, 67.0011);
   final Set<Marker> _markers = {};
-  final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchCtl = TextEditingController();
+  final OverpassService _svc = OverpassService();
 
-  Future<void> _requestLocationPermission() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      if (mounted) {
-        _showErrorSnackbar('Location services are disabled. Please enable them');
-      }
-      return;
+  GoogleMapController? _mapCtrl;
+  LatLng _curPos = const LatLng(24.8607, 67.0011); // Karachi default
+
+  // ───────── PERMISSION + CURRENT LOC ─────────
+  Future<void> _requestPermAndLocate() async {
+    var perm = await Geolocator.checkPermission();
+    if (perm == LocationPermission.denied) {
+      perm = await Geolocator.requestPermission();
     }
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.whileInUse &&
-          permission != LocationPermission.always) {
-        if (mounted) {
-          _showErrorSnackbar('Location permissions are required');
-        }
-        return;
-      }
+    if (perm == LocationPermission.denied ||
+        perm == LocationPermission.deniedForever) {
+      return _err('Location permission denied');
     }
-
-    if (permission == LocationPermission.deniedForever) {
-      if (mounted) {
-        _showErrorSnackbar('Location permissions are permanently denied');
-      }
-      return;
-    }
-
     _getCurrentLocation();
   }
 
   Future<void> _getCurrentLocation() async {
     try {
-      Position position = await Geolocator.getCurrentPosition(
+      final p = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
-      if (mounted) {
-        _updateCameraAndMarker(
-          LatLng(position.latitude, position.longitude),
-          'Your Current Location',
-          BitmapDescriptor.defaultMarker,
-        );
-      }
+      final loc = LatLng(p.latitude, p.longitude);
+      _addOrUpdateMarker(loc, 'current', 'Your Current Location',
+          BitmapDescriptor.defaultMarker);
+      _moveCamera(loc);
+      await _loadHospitals(loc);
     } catch (e) {
-      if (mounted) {
-        _showErrorSnackbar('Error getting location: $e');
-      }
+      _err('Location error: $e');
     }
   }
 
-  Future<void> _searchLocation(String address) async {
-    if (address.isEmpty) return;
-
+  // ───────── SEARCH ─────────
+  Future<void> _search(String q) async {
+    if (q.trim().isEmpty) return;
     try {
-      List<Location> locations = await locationFromAddress(address);
-      if (locations.isEmpty) {
-        if (mounted) {
-          _showErrorSnackbar('Location not found');
-        }
-        return;
-      }
-      if (mounted) {
-        _updateCameraAndMarker(
-          LatLng(locations[0].latitude, locations[0].longitude),
-          address,
-          BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-          isSearchResult: true,
-        );
-        _searchController.clear();
-      }
+      final res = await locationFromAddress(q);
+      if (res.isEmpty) return _err('Location not found');
+      final tgt = LatLng(res[0].latitude, res[0].longitude);
+
+      _addOrUpdateMarker(tgt, 'searched', q,
+          BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue));
+      _moveCamera(tgt);
+      _searchCtl.clear();
+      await _loadHospitals(tgt);
     } catch (e) {
-      if (mounted) {
-        _showErrorSnackbar('Error searching location: $e');
-      }
+      _err('Search failed: $e');
     }
   }
 
-  void _updateCameraAndMarker(LatLng position, String infoText,
-      BitmapDescriptor icon, {bool isSearchResult = false}) {
-    final markerId = MarkerId(isSearchResult ? 'searchedLocation' : 'currentLocation');
+  // ───────── HOSPITALS (TOP 4 NEAREST) ─────────
+  Future<void> _loadHospitals(LatLng base) async {
+    try {
+      final data = await _svc.hospitals(base);
+      final sorted = data
+          .where((e) =>
+              (e['lat'] != null && e['lon'] != null) ||
+              (e['center']?['lat'] != null))
+          .map((e) {
+            final lat = (e['lat'] ?? e['center']['lat']) as num;
+            final lon = (e['lon'] ?? e['center']['lon']) as num;
+            final d = Geolocator.distanceBetween(
+                base.latitude, base.longitude, lat.toDouble(), lon.toDouble());
+            return {'d': d, 'e': e};
+          })
+          .toList()
+        ..sort((a, b) {
+          final ad = a['d'] as double?;
+          final bd = b['d'] as double?;
+          if (ad == null && bd == null) return 0;
+          if (ad == null) return 1;
+          if (bd == null) return -1;
+          return ad.compareTo(bd);
+        });
 
+      final nearest = sorted.take(4);
+
+      setState(() {
+        _markers.removeWhere((m) => m.markerId.value.startsWith('hosp_'));
+        for (var item in nearest) {
+          final e = item['e'] as Map<String, dynamic>;
+          final lat = (e['lat'] ?? e['center']['lat']) as double;
+          final lon = (e['lon'] ?? e['center']['lon']) as double;
+          final name = e['tags']?['name'] ?? 'Hospital';
+          _markers.add(
+            Marker(
+              markerId: MarkerId('hosp_${e['id']}'),
+              position: LatLng(lat, lon),
+              infoWindow: InfoWindow(title: name),
+              icon: BitmapDescriptor.defaultMarkerWithHue(
+                  BitmapDescriptor.hueGreen),
+            ),
+          );
+        }
+      });
+    } catch (e) {
+      _err('Hospitals load error: $e');
+    }
+  }
+
+  // ───────── MARKER + CAMERA HELPERS ─────────
+  void _addOrUpdateMarker(
+      LatLng pos, String id, String title, BitmapDescriptor icon) {
     setState(() {
-      _currentPosition = position;
-      _markers.removeWhere((marker) => marker.markerId == markerId);
-      _markers.add(Marker(
-        markerId: markerId,
-        position: position,
-        icon: icon,
-        infoWindow: InfoWindow(title: infoText),
-      ));
+      _curPos = pos;
+      _markers.removeWhere((m) => m.markerId.value == id);
+      _markers.add(
+        Marker(
+          markerId: MarkerId(id),
+          position: pos,
+          infoWindow: InfoWindow(title: title),
+          icon: icon,
+        ),
+      );
     });
-
-    mapController.animateCamera(
-      CameraUpdate.newLatLngZoom(position, 14),
-    );
   }
 
-  void _showErrorSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.redAccent,
-      ),
-    );
-  }
+  void _moveCamera(LatLng pos) =>
+      _mapCtrl?.animateCamera(CameraUpdate.newLatLngZoom(pos, 14));
 
+  void _err(String m) =>
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m)));
+
+  // ───────── UI ─────────
   @override
   Widget build(BuildContext context) {
+    final padTop = MediaQuery.of(context).padding.top;
     return Scaffold(
       body: Stack(
         children: [
           GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: _currentPosition,
-              zoom: 14.0,
-            ),
-            markers: _markers,
-            myLocationButtonEnabled: false,
-            onMapCreated: (controller) async {
-              mapController = controller;
-              await _requestLocationPermission();
-            },
+            initialCameraPosition: CameraPosition(target: _curPos, zoom: 14),
+            markers: Set<Marker>.of(_markers),
             compassEnabled: true,
             mapToolbarEnabled: true,
             zoomControlsEnabled: false,
+            onMapCreated: (c) {
+              _mapCtrl = c;
+              _requestPermAndLocate();
+            },
           ),
 
-          // Search Bar
+          // ── Fancy Search Bar (original design)
           Positioned(
-            top: MediaQuery.of(context).padding.top + 20,
+            top: padTop + 20,
             left: 20,
             right: 20,
             child: Container(
@@ -154,35 +168,36 @@ class _MapsScreenState extends State<MapsScreen> {
                 borderRadius: BorderRadius.circular(30),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withOpacity(.2),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),
                 ],
               ),
               child: TextField(
-                controller: _searchController,
+                controller: _searchCtl,
+                onSubmitted: _search,
                 decoration: InputDecoration(
                   hintText: 'Search location...',
                   prefixIcon: const Icon(Icons.search, color: Colors.blue),
                   suffixIcon: IconButton(
                     icon: const Icon(Icons.clear, color: Colors.grey),
-                    onPressed: () => _searchController.clear(),
+                    onPressed: _searchCtl.clear,
                   ),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: 15, horizontal: 20),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                 ),
-                onSubmitted: _searchLocation,
               ),
             ),
           ),
 
-          // Current Location Button
+          // ── Round FAB (original position)
           Positioned(
             bottom: 110,
             right: 20,
             child: FloatingActionButton(
+              heroTag: null,
               backgroundColor: Colors.white,
               elevation: 4,
               onPressed: _getCurrentLocation,
@@ -194,3 +209,4 @@ class _MapsScreenState extends State<MapsScreen> {
     );
   }
 }
+
