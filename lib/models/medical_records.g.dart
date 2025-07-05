@@ -24,13 +24,14 @@ class MedicalRecordAdapter extends TypeAdapter<MedicalRecord> {
       description: fields[4] as String,
       filePath: fields[5] as String,
       fileType: fields[6] as String,
+      isSynced: fields[7] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, MedicalRecord obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -44,7 +45,9 @@ class MedicalRecordAdapter extends TypeAdapter<MedicalRecord> {
       ..writeByte(5)
       ..write(obj.filePath)
       ..writeByte(6)
-      ..write(obj.fileType);
+      ..write(obj.fileType)
+      ..writeByte(7)
+      ..write(obj.isSynced);
   }
 
   @override

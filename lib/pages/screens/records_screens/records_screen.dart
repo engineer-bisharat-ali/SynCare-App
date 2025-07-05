@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncare/constants/colors.dart';
+import 'package:syncare/models/medical_records.dart';
 import 'package:syncare/pages/screens/records_screens/add_record_screen.dart.dart';
 import 'package:syncare/pages/screens/records_screens/record_details_screen.dart';
 import 'package:syncare/provider/records_provider.dart';
@@ -244,102 +245,123 @@ class _RecordsHomeScreenState extends State<RecordsScreen> {
       margin: const EdgeInsets.all(16),
     );
   }
-
-  Widget _buildRecordTile(record) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
+Widget _buildRecordTile(MedicalRecord record) {
+  return Container(
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(18),
+      border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+      boxShadow: [
+        BoxShadow(
+          color: const Color(0xFF64748B).withOpacity(0.04),
+          blurRadius: 12,
+          offset: const Offset(0, 2),
+        ),
+        BoxShadow(
+          color: const Color(0xFF64748B).withOpacity(0.02),
+          blurRadius: 4,
+          offset: const Offset(0, 1),
+        ),
+      ],
+    ),
+    child: Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF64748B).withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 2),
-          ),
-          BoxShadow(
-            color: const Color(0xFF64748B).withOpacity(0.02),
-            blurRadius: 4,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(18),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(18),
-          splashColor: const Color(0xFF3B82F6).withOpacity(0.08),
-          highlightColor: const Color(0xFF3B82F6).withOpacity(0.04),
-          onTap: () => _navigateToDetails(record),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                _buildRecordThumbnail(record),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        record.title,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                          color: Color(0xFF1E293B),
-                          letterSpacing: -0.1,
-                          height: 1.3,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+        splashColor: const Color(0xFF3B82F6).withOpacity(0.08),
+        highlightColor: const Color(0xFF3B82F6).withOpacity(0.04),
+        onTap: () => _navigateToDetails(record),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              _buildRecordThumbnail(record),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      record.title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        color: Color(0xFF1E293B),
+                        letterSpacing: -0.1,
+                        height: 1.3,
                       ),
-                      const SizedBox(height: 10),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 5),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              primaryColor.withOpacity(0.08),
-                              primaryColor.withOpacity(0.12),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                              color: primaryColor.withOpacity(0.15), width: 1),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 10),
+
+                    /* Category pill */
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            primaryColor.withOpacity(0.08),
+                            primaryColor.withOpacity(0.12),
+                          ],
                         ),
-                        child: Text(
-                          record.category,
-                          style: const TextStyle(
-                            color: primaryColor,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                            color: primaryColor.withOpacity(0.15), width: 1),
+                      ),
+                      child: Text(
+                        record.category,
+                        style: const TextStyle(
+                          color: primaryColor,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
                         ),
+                      ),
+                    ),
+
+                    /* 🆕 Pending‑upload badge */
+                    if (!record.isSynced) ...[
+                      const SizedBox(height: 6),
+                      const Row(
+                        children: [
+                          Icon(Icons.cloud_off,
+                              size: 14, color: Colors.orange),
+                          SizedBox(width: 4),
+                          Text(
+                            "Pending upload",
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.orange,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
-                  ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(10),
-                    border:
-                        Border.all(color: const Color(0xFFE2E8F0), width: 1),
-                  ),
-                  child: const Icon(Icons.arrow_forward_ios_rounded,
-                      size: 14, color: Color(0xFF64748B)),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
                 ),
-              ],
-            ),
+                child: const Icon(Icons.arrow_forward_ios_rounded,
+                    size: 14, color: Color(0xFF64748B)),
+              ),
+            ],
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Widget _buildRecordThumbnail(record) {
     return Container(

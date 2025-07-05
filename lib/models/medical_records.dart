@@ -25,6 +25,9 @@ class MedicalRecord extends HiveObject {
   @HiveField(6)
   final String fileType;
 
+  @HiveField(7)                 
+  bool isSynced;
+
   MedicalRecord({
     required this.id,
     required this.userId,
@@ -33,29 +36,28 @@ class MedicalRecord extends HiveObject {
     required this.description,
     required this.filePath,
     required this.fileType,
+    this.isSynced = false,
   });
 
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'userId': userId,
-      'category': category,
-      'title': title,
-      'description': description,
-      'filePath': filePath,
-      'fileType': fileType,
-    };
-  }
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'userId': userId,
+        'category': category,
+        'title': title,
+        'description': description,
+        'filePath': filePath,
+        'fileType': fileType,
+        'isSynced': isSynced,
+      };
 
-  factory MedicalRecord.fromMap(Map<String, dynamic> map) {
-    return MedicalRecord(
-      id: map['id'],
-      userId: map['userId'],
-      category: map['category'],
-      title: map['title'],
-      description: map['description'],
-      filePath: map['filePath'],
-      fileType: map['fileType'],
-    );
-  }
+  factory MedicalRecord.fromMap(Map<String, dynamic> map) => MedicalRecord(
+        id: map['id'] as String,
+        userId: map['userId'] as String,
+        category: map['category'] as String,
+        title: map['title'] as String,
+        description: map['description'] as String,
+        filePath: map['filePath'] as String,
+        fileType: map['fileType'] as String,
+        isSynced: (map['isSynced'] as bool?) ?? false,
+      );
 }

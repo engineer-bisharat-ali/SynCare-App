@@ -1,10 +1,10 @@
 import 'dart:io';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';       // ← NEW
 import 'package:syncare/constants/colors.dart';
 import 'package:syncare/provider/records_provider.dart';
-import 'package:syncare/services/supabase_servises/supabase_storage_service.dart';
 import 'package:syncare/widgets/custom_app_bar.dart';
 
 class AddRecordScreen extends StatefulWidget {
@@ -87,49 +87,72 @@ class AddRecordScreenState extends State<AddRecordScreen> {
   }
 
   /* ───────────────────── Save record ───────────────────── */
-  void _saveRecord() async {
-    if (_formKey.currentState!.validate() && _selectedFile != null) {
-      setState(() => _isLoading = true);
-      _formKey.currentState!.save();
-
-      final finalTitle =
-          _isCustomTitle ? _customTitleController.text : _selectedTitle!;
-      final finalCategory =
-          _isCustomCategory ? _customCategoryController.text : _selectedCategory!;
-
-      /* 📤 Upload to Supabase */
-      final bytes = await _selectedFile!.readAsBytes();
-      final fileName = _selectedFile!.path.split('/').last;
-      await SupabaseStorageService().upload(bytes, fileName);
-
-      if (!mounted) return;
-
-      /* Local Hive save */
-      Provider.of<RecordsProvider>(context, listen: false).addRecord(
-        finalCategory,
-        finalTitle,
-        _description,
-        _selectedFile!.path,
-        _fileType!,
-      );
-
-      Provider.of<RecordsProvider>(context, listen: false).loadLocalRecords();
-
-      setState(() => _isLoading = false);
-      _showSnackBar(
-        "Record Added Successfully",
-        "Your medical record has been securely saved",
-        _successGreen,
-      );
-      Navigator.pop(context);
-    } else {
-      _showSnackBar(
-        "Incomplete Information",
-        "Please fill all required fields and attach a file",
-        _warningOrange,
-      );
-    }
+  
+  Future<void> _saveRecord() async {
+  if (!_formKey.currentState!.validate() || _selectedFile == null) {
+    _showSimpleSnackBar("Please fill all fields and attach a file", Colors.orange);
+    return;
   }
+
+  setState(() => _isLoading = true);
+  _formKey.currentState!.save();
+
+  final finalTitle =
+      _isCustomTitle ? _customTitleController.text : _selectedTitle!;
+  final finalCategory =
+      _isCustomCategory ? _customCategoryController.text : _selectedCategory!;
+
+  await Provider.of<RecordsProvider>(context, listen: false)
+      .addRecordOfflineFirst(
+    category: finalCategory,
+    title: finalTitle,
+    description: _description,
+    filePath: _selectedFile!.path,
+    fileType: _fileType!,
+  );
+
+  final connList = await Connectivity().checkConnectivity();
+  final online = connList.any((r) => r != ConnectivityResult.none);
+
+  if (!mounted) return;
+  setState(() => _isLoading = false);
+
+  String message;
+  Color color;
+
+  if (online) {
+    message = "Record uploaded successfully";
+    color = _successGreen;
+  } else {
+    message = "Record saved offline";
+    color = _warningOrange;
+  }
+
+  _showSnackBar(message, color);
+
+  Navigator.pop(context);
+}
+
+  /* ───────────────────── Snackbar helper ───────────────────── */
+void _showSimpleSnackBar(String message, Color color) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        message,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      backgroundColor: color,
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.all(16),
+    ),
+  );
+}
+
+
 
   /* ───────────────────── Cleanup ───────────────────── */
   @override
@@ -139,48 +162,47 @@ class AddRecordScreenState extends State<AddRecordScreen> {
     super.dispose();
   }
 
-  /* ───────────────────── Snackbar helper ───────────────────── */
-  void _showSnackBar(String title, String message, Color color) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                color == _successGreen ? Icons.check_circle : Icons.warning,
+ /* ───────────────────── Snackbar helper  ───────────────────── */
+void _showSnackBar(String title, Color color) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              color == _successGreen ? Icons.check_circle : Icons.warning,
+              color: Colors.white,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
                 color: Colors.white,
-                size: 20,
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(title,
-                      style: const TextStyle(fontWeight: FontWeight.w600)),
-                  Text(message, style: const TextStyle(fontSize: 12)),
-                ],
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: color,
-        behavior: SnackBarBehavior.floating,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
+          ),
+        ],
       ),
-    );
-  }
+      backgroundColor: color,
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.all(16),
+    ),
+  );
+}
 
-  /* ───────────────────── UI builders (unchanged) ───────────────────── */
+
+  /* ───────────────────── UI builders  ───────────────────── */
 
   Widget _buildDropdownField({
     required String label,
