@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:syncare/models/medical_records.dart';
 import 'package:provider/provider.dart';
 import 'package:syncare/pages/auths/auth_gate.dart';
+import 'package:syncare/provider/bmi_provider.dart';
 import 'package:syncare/provider/diabetes_prediction_provider.dart';
 import 'package:syncare/provider/records_provider.dart';
 import 'package:syncare/provider/symptom_provider.dart';
@@ -31,9 +32,11 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => RecordsProvider()),
-        ChangeNotifierProvider(create: (_) => SymptomProvider()..loadSymptoms()),
-        ChangeNotifierProvider(create: (_) => DiabetesProvider()),
+        // Providers for various functionalities
+        ChangeNotifierProvider(create: (_) => RecordsProvider()), // Provider for managing medical records
+        ChangeNotifierProvider(create: (_) => SymptomProvider()..loadSymptoms()), // Provider for managing symptoms with initial load
+        ChangeNotifierProvider(create: (_) => DiabetesProvider()), // Provider for managing diabetes
+        ChangeNotifierProvider(create: (context) => BMIProvider()), // Provider for managing BMI
       ],
       child: const MyApp(),
     ),
@@ -43,7 +46,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+  // This widget is the root of application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

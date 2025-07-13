@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:syncare/constants/colors.dart' as app_colors;
+import 'package:syncare/pages/screens/bmi_calculator_screen.dart';
 import 'package:syncare/pages/screens/diabetes_prediction_screen.dart';
+import 'package:syncare/pages/screens/profile_screen.dart';
+import 'package:syncare/pages/screens/records_screens/add_record_screen.dart.dart';
 // import 'package:syncare/pages/auths/login_screen.dart';
 import 'package:syncare/pages/screens/records_screens/records_screen.dart';
 import 'package:syncare/pages/screens/symptoms_tracker_screen.dart';
@@ -365,14 +368,30 @@ class _HomeScreenState extends State<HomeScreen> {
                 "Diabetes prediction",
                 Icons.health_and_safety,
                 Colors.red.shade400,
+                () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DiabetesPredictionScreen(),
+                    ),
+                  );
+                },
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: _buildQuickAccessCard(
-                "Medicine Reminders",
-                Icons.access_time,
+                "BMI\nCalculator",
+                Icons.fitness_center,
                 Colors.orange.shade400,
+                () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const BMICalculatorScreen(),
+                    ),
+                  );
+                },
               ),
             ),
           ],
@@ -382,17 +401,25 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Expanded(
               child: _buildQuickAccessCard(
-                "Health Reports",
+                "Add Medical Records",
                 Icons.assignment,
                 Colors.teal.shade400,
+                () {
+                  // Navigate to Add Medical Records screen
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const AddRecordScreen()));
+                },
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: _buildQuickAccessCard(
-                "Appointments",
-                Icons.calendar_month,
+                "Profile",
+                Icons.account_circle,
                 Colors.purple.shade400,
+                () {
+                  // Navigate to profile screen
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileMenuScreen()));
+                },
               ),
             ),
           ],
@@ -401,11 +428,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildQuickAccessCard(String title, IconData icon, Color color) {
+  Widget _buildQuickAccessCard(String title, IconData icon, Color color , onTap) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => DiabetesPredictionScreen(),));
-      },
+      onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
