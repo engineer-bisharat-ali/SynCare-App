@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:syncare/models/medical_records.dart';
 import 'package:provider/provider.dart';
 import 'package:syncare/pages/auths/auth_gate.dart';
+import 'package:syncare/provider/diabetes_prediction_provider.dart';
 import 'package:syncare/provider/records_provider.dart';
 import 'package:syncare/provider/symptom_provider.dart';
 
@@ -32,6 +33,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => RecordsProvider()),
         ChangeNotifierProvider(create: (_) => SymptomProvider()..loadSymptoms()),
+        ChangeNotifierProvider(create: (_) => DiabetesProvider()),
       ],
       child: const MyApp(),
     ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:syncare/constants/colors.dart';
+import 'package:syncare/constants/colors.dart' as app_colors;
+import 'package:syncare/pages/screens/diabetes_prediction_screen.dart';
 // import 'package:syncare/pages/auths/login_screen.dart';
 import 'package:syncare/pages/screens/records_screens/records_screen.dart';
 import 'package:syncare/pages/screens/symptoms_tracker_screen.dart';
@@ -35,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
-                color: primaryColor.withOpacity(0.1),
+                color: app_colors.primaryColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
@@ -51,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const Text(
                     'Syn',
                     style: TextStyle(
-                      color: primaryColor,
+                      color: app_colors.primaryColor,
                       fontWeight: FontWeight.bold,
                       fontSize: 24,
                     ),
@@ -361,8 +362,8 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Expanded(
               child: _buildQuickAccessCard(
-                "Emergency Contacts",
-                Icons.emergency,
+                "Diabetes prediction",
+                Icons.health_and_safety,
                 Colors.red.shade400,
               ),
             ),
@@ -403,7 +404,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildQuickAccessCard(String title, IconData icon, Color color) {
     return GestureDetector(
       onTap: () {
-        // Add navigation logic here
+        Navigator.push(context, MaterialPageRoute(builder: (context) => DiabetesPredictionScreen(),));
       },
       child: Container(
         padding: const EdgeInsets.all(20),
