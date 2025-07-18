@@ -26,8 +26,8 @@ class _AuthGateState extends State<AuthGate> {
   }
 
   Future<void> _decide() async {
-    // allow splash to animate at least 3 s
-    await Future.delayed(const Duration(seconds: 3));
+    // allow splash to animate at least 5 s
+    await Future.delayed(const Duration(seconds: 5));
 
     final user = FirebaseAuth.instance.currentUser;
     final doneOnboarding = await OnboardingHelper.isOnboardingCompleted();
