@@ -4,7 +4,7 @@ import 'package:syncare/constants/colors.dart' as app_colors;
 import 'package:syncare/pages/screens/bmi_calculator_screen.dart';
 import 'package:syncare/pages/screens/diabetes_prediction_screen.dart';
 import 'package:syncare/pages/screens/profile_screen.dart';
-import 'package:syncare/pages/screens/records_screens/add_record_screen.dart.dart';
+import 'package:syncare/pages/screens/records_screens/add_record_screen.dart';
 // import 'package:syncare/pages/auths/login_screen.dart';
 import 'package:syncare/pages/screens/records_screens/records_screen.dart';
 import 'package:syncare/pages/screens/symptoms_tracker_screen.dart';
