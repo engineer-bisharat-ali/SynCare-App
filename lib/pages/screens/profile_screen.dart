@@ -396,10 +396,10 @@ class _ProfileMenuScreenState extends State<ProfileMenuScreen>
         icon: Icons.contact_support_outlined,
         title: 'Contact Us',
         color: Colors.purple,
-        content: 'Need help? Our support team is here for you!\n\n📧 support@syncare.com\n📞 +1 (555) 123-4567\n💬 24/7 Live Chat Available',
+        content: 'Need help? Our support team is here for you!\n\n📧 syncare@gmail.com',
         onTap: () => _showStyledDialog(
           title: 'Contact Us',
-          content: 'Need help? Our support team is here for you!\n\n📧 support@syncare.com\n📞 +1 (555) 123-4567\n💬 24/7 Live Chat Available',
+          content: 'Need help? Our support team is here for you!\n\n📧 syncare@gmail.com',
           icon: Icons.contact_support_outlined,
           color: Colors.purple,
         ),
