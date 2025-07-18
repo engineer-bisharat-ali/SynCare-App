@@ -6,6 +6,8 @@ import 'package:syncare/provider/diabetes_prediction_provider.dart';
 const primaryColor = Color(0x9C00BCD3);
 
 class DiabetesPredictionScreen extends StatefulWidget {
+  const DiabetesPredictionScreen({super.key});
+
   @override
   _DiabetesPredictionScreenState createState() =>
       _DiabetesPredictionScreenState();
@@ -322,7 +324,7 @@ class _DiabetesPredictionScreenState extends State<DiabetesPredictionScreen> {
         children: [
           // Display current BMI value
           Text(
-            '${provider.bmi.toStringAsFixed(1)}',
+            provider.bmi.toStringAsFixed(1),
             style: const TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,
