@@ -1,6 +1,6 @@
 # 🩺 SynCare – AI-Powered Health Management App
 <div align="center">
-  <img src="https://raw.githubusercontent.com/engineer-bisharat-ali/Assets/refs/heads/main/Banner.png" alt="SynCare Banner" style="width100%;">
+  <img src="https://raw.githubusercontent.com/engineer-bisharat-ali/Assets/refs/heads/main/Banner.gif" alt="SynCare Banner" style="width100%;">
 </div>
 
 ---
